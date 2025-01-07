@@ -1,0 +1,88 @@
+{
+      "customers": [
+        {
+          "id": 1,
+          "name": "John Doe",
+          "email": "john.doe@example.com",
+          "phone": "123-456-7890",
+          "orders": 5
+        },
+        {
+          "id": 2,
+          "name": "Jane Smith",
+          "email": "jane.smith@example.com",
+          "phone": "987-654-3210",
+          "orders": 3
+        },
+        {
+          "id": 3,
+          "name": "Alice Brown",
+          "email": "alice.brown@example.com",
+          "phone": "555-123-4567",
+          "orders": 7
+        },
+        {
+          "id": 4,
+          "name": "Bob Johnson",
+          "email": "bob.johnson@example.com",
+          "phone": "111-222-3333",
+          "orders": 2
+        }
+      ],
+      "products": [
+        {
+          "id": 101,
+          "name": "Laptop",
+          "price": 1200,
+          "stock": 50,
+          "sales": 20
+        },
+        {
+          "id": 102,
+          "name": "Tablet",
+          "price": 300,
+          "stock": 100,
+          "sales": 40
+        },
+        {
+          "id": 103,
+          "name": "Smartphone",
+          "price": 800,
+          "stock": 75,
+          "sales": 30
+        },
+        {
+          "id": 104,
+          "name": "Monitor",
+          "price": 400,
+          "stock": 60,
+          "sales": 15
+        }
+      ],
+      "orders": [
+        {
+          "id": 1,
+          "customerId": 1,
+          "items": [101, 102],
+          "total": 1500
+        },
+        {
+          "id": 2,
+          "customerId": 2,
+          "items": [103],
+          "total": 800
+        },
+        {
+          "id": 3,
+          "customerId": 3,
+          "items": [101, 104],
+          "total": 1600
+        },
+        {
+          "id": 4,
+          "customerId": 4,
+          "items": [102, 103],
+          "total": 1100
+        }
+      ]
+    }
