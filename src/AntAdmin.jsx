@@ -33,7 +33,6 @@ function AntAdmin() {
     return (
         <Router>
             <CoreAdmin dataProvider={dataProvider} layout={CustomLayout} title="My Admin">
-                <Resource name="posts" list={ListGuesser} />
                 <Resource name="customers" list={() => <Customers />} />
                 <Resource name="products" list={() => <Products />} />
                 <Resource name="contacts" list={() => <Contacts />} />
