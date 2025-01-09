@@ -84,5 +84,31 @@
       "items": [102, 103],
       "total": 1100
     }
+  ],
+  "contacts": [
+    {
+      "id": 1,
+      "name": "Contact 1",
+      "email": "contact1@example.com",
+      "phone": "111-222-3333"
+    },
+    {
+      "id": 2,
+      "name": "Contact 2",
+      "email": "contact2@example.com",
+      "phone": "444-555-6666"
+    },
+    {
+      "id": 3,
+      "name": "Contact 3",
+      "email": "contact3@example.com",
+      "phone": "777-888-9999"
+    },
+        {
+      "id": 4,
+      "name": "Contact 4",
+      "email": "contact4@example.com",
+      "phone": "123-987-6543"
+    }
   ]
 }
