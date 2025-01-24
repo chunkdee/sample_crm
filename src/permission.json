@@ -1,0 +1,28 @@
+{
+  "permission" :  [
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "companies" }},
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "contacts" }},
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "deals" }},
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "quotes" }},
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "customers" }},
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "dashboard" }},
+    { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "companies" }},
+    { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "contacts" }},
+    { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "deals" }},
+    { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "quotes" }},
+    { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "customers" }},
+    { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "dashboard" }},
+    { "roleId": 3, "permission": { "action": ["list", "edit", "show"], "resource": "companies" }},
+    { "roleId": 3, "permission": { "action": ["list", "edit", "show"], "resource": "contacts" }},
+    { "roleId": 3, "permission": { "action": ["list", "show"], "resource": "dashboard" }},
+    { "roleId": 4, "permission": { "action": ["list"], "resource": "companies" }},
+    { "roleId": 4, "permission": { "action": ["list", "create", "edit"], "resource": "contacts" }},
+    { "roleId": 4, "permission": { "action": ["list", "create", "edit", "delete"], "resource": "deals" }},
+    { "roleId": 4, "permission": { "action": ["list", "create", "edit", "delete"], "resource": "quotes" }},
+    { "roleId": 4, "permission": { "action": ["list", "create", "edit"], "resource": "customers" }},
+    { "roleId": 5, "permission": { "action": ["list"], "resource": "companies" }},
+    { "roleId": 5, "permission": { "action": ["list", "create", "edit", "delete"], "resource": "contacts" }},
+    { "roleId": 5, "permission": { "action": ["list"], "resource": "customers" }}
+]    
+}
+  

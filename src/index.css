@@ -4,3 +4,21 @@ body {
       padding: 0;
       background-color: #f0f2f5;
     }
+
+.ant-menu-item:hover {
+  background-color: #f6f6f6 !important;
+}
+
+.ant-menu-item-selected {
+  background-color: #e6f7ff !important;
+  border-right: 3px solid #1890ff !important;
+}
+
+.ant-layout-sider {
+  transition: all 0.2s !important;
+}
+
+.ant-menu-inline .ant-menu-item {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+}

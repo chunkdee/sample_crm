@@ -10,7 +10,8 @@ lerna-debug.log*
 node_modules
 
 !/node_modules/**/ 
-!/node_modules/ra-core/src/** 
+!/node_modules/ra-core/src/**
+!/node_modules/ra-data-fakerest/src/** 
 
 dist
 dist-ssr
