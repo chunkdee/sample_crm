@@ -3,7 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Card, Row, Col, Avatar, Typography, Timeline, List, Button, Input, Space, Tag, Divider, Spin, message, Steps, Empty } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, BankOutlined, PlusOutlined } from '@ant-design/icons';
 import { useGetOne, useUpdate, useGetList } from 'ra-core';
-import { Contact, ContactNote } from '../types/models';
+import { Contact as C1, ContactNote } from '../types/models';
+import { Contact, Company } from '../datagenerator/types/crmTypes';
+
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;

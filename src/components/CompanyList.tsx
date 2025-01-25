@@ -8,7 +8,8 @@ import { Company } from '../types/models';
 import { ViewToggle } from '../components/styles/ViewToggle';
 import { ActionButton, ActionGroup } from '../components/styles/ActionButtons';
 import { ColumnProps } from 'antd/es/table';
-import { TableColumn,createSortableColumn } from './tableColumnns';
+import { TableColumn, createSortableColumn } from './tableColumnns';
+
 const CompanyList: React.FC = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -25,7 +26,7 @@ const CompanyList: React.FC = () => {
 
   const companiesList = records || [];
 
-  const filteredCompanies = companiesList.filter(company => 
+  const filteredCompanies = companiesList.filter(company =>
     searchText ? company.name.toLowerCase().includes(searchText.toLowerCase()) : true
   );
 
@@ -44,105 +45,44 @@ const CompanyList: React.FC = () => {
     dataIndex?: keyof T;
     key: string;
     render?: (text: string, record: T) => React.ReactNode;
-  }
-
-
-  // const columns2: TableColumn<Company>[] = [
-  //   createSortableColumn('Name', 'name'),
-  //   createSortableColumn('Industry', 'industry'),
-  //   createSortableColumn('Size', 'size'),
-  //   createSortableColumn('Revenue', 'revenue', (a, b) => a.revenue - b.revenue),
-  //   createSortableColumn('Location', 'location'),
-  //   { 
-  //     title: 'Logo',
-  //     dataIndex: 'logo',
-  //     key: 'logo',
-  //     width: 80,
-  //     render: (logo: string, record: Company) => (
-  //       <Tooltip title={record.name}>
-  //         <Avatar 
-  //           src={logo}
-  //           icon={!logo && <UserOutlined />}
-  //           size={40}
-  //           shape="square"
-  //           style={{ 
-  //             border: '1px solid #f0f0f0',
-  //             backgroundColor: '#fff' 
-  //           }}
-  //         />
-  //       </Tooltip>
-  //     )
-  //   },
-  //   {
-  //     title: 'Actions',
-  //     key: 'actions',
-  //     width: 120,
-  //     render: (_: any, record: Company) => (
-  //       <ActionGroup>
-  //         <Tooltip title="Edit Company">
-  //           <ActionButton
-  //             icon={<EditOutlined />}
-  //             onClick={() => {
-  //               setCompanyId(record.id);
-  //               setIsModalVisible(true);
-  //             }}
-  //           />
-  //         </Tooltip>
-  //         <Popconfirm
-  //           title="Are you sure you want to delete this company?"
-  //           onConfirm={() => handleDelete(record.id)}
-  //           okText="Yes"
-  //           cancelText="No"
-  //           placement="left"
-  //         >
-  //           <Tooltip title="Delete Company">
-  //             <ActionButton
-  //               danger
-  //               icon={<DeleteOutlined />}
-  //             />
-  //           </Tooltip>
-  //         </Popconfirm>
-  //       </ActionGroup>
-  //     )
-  //   }
-  // ];
+  };
 
   const columns = [
-    { 
-      title: 'Name', 
-      dataIndex: 'name', 
+    {
+      title: 'Name',
+      dataIndex: 'name',
       key: 'name',
-     sorter: (a: Company, b: Company) => a.name.localeCompare(b.name),
-     render: (name: string, record: Company) => (
-      <Space>
-        <Avatar 
-          src={record.logo}
-          icon={!record.logo && <BankOutlined />}
-        />
-        <Typography.Text>{name}</Typography.Text>
-      </Space>
-    )
+      sorter: (a: Company, b: Company) => a.name.localeCompare(b.name),
+      render: (name: string, record: Company) => (
+        <Space>
+          <Avatar
+            src={record.logo}
+            icon={!record.logo && <BankOutlined />}
+          />
+          <Typography.Text>{name}</Typography.Text>
+        </Space>
+      )
     },
-    { 
-      title: 'Industry', 
-      dataIndex: 'industry', 
-      key: 'industry' 
+    {
+      title: 'Industry',
+      dataIndex: 'industry',
+      key: 'industry'
     },
-    { 
-      title: 'Size', 
-      dataIndex: 'size', 
-      key: 'size' 
+    {
+      title: 'Size',
+      dataIndex: 'size',
+      key: 'size'
     },
-    { 
-      title: 'Revenue', 
-      dataIndex: 'revenue', 
+    {
+      title: 'Revenue',
+      dataIndex: 'revenue',
       key: 'revenue',
       render: (revenue: number) => `$${revenue.toLocaleString()}`
     },
-    { 
-      title: 'Location', 
-      dataIndex: 'location', 
-      key: 'location' 
+    {
+      title: 'Location',
+      dataIndex: 'location',
+      key: 'location'
     },
     {
       title: 'Actions',
@@ -183,12 +123,10 @@ const CompanyList: React.FC = () => {
     setCompanyId(null);
   };
 
-
-    const handleDelete = (id: Identifier): void => {
-      const updatedCompany = companies.filter((company) => company.id !== id);
-      message.success('Company deleted successfully');
-    };
-  
+  const handleDelete = (id: Identifier): void => {
+    const updatedCompany = companies.filter((company) => company.id !== id);
+    message.success('Company deleted successfully');
+  };
 
   function handleEdit(id: Identifier): void {
     setCompanyId(id);
@@ -197,20 +135,20 @@ const CompanyList: React.FC = () => {
 
   return (
     <div>
-      <div style={{ 
-        marginBottom: 16, 
-        display: 'flex', 
+      <div style={{
+        marginBottom: 16,
+        display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
         <Space size={16}>
-        <Button
-  type="primary"
-  icon={<PlusOutlined />}
-  onClick={() => navigate('/companies/create')}
->
-  Add Company
-</Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/companies/create')}
+          >
+            Add Company
+          </Button>
           <Input
             placeholder="Search companies..."
             prefix={<SearchOutlined />}
@@ -246,10 +184,10 @@ const CompanyList: React.FC = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : viewMode === 'table' ? (
-        <Table 
-          columns={columns} 
-          dataSource={companies} 
-          rowKey="id" 
+        <Table
+          columns={columns}
+          dataSource={companies}
+          rowKey="id"
           pagination={{
             total,
             pageSize: 10,
@@ -264,7 +202,7 @@ const CompanyList: React.FC = () => {
               <Card
                 hoverable
                 size="small"
-                style={{ 
+                style={{
                   height: '100%',
                   borderRadius: '8px',
                   overflow: 'hidden',
@@ -285,20 +223,20 @@ const CompanyList: React.FC = () => {
                 ]}
               >
                 <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                  <Avatar 
-                    src={company.logo} 
+                  <Avatar
+                    src={company.logo}
                     icon={!company.logo && <BankOutlined />}
                     size={48}
-                    style={{ 
+                    style={{
                       border: '2px solid #1890ff',
                       padding: '2px',
                       background: '#fff'
                     }}
                   />
-                  <Typography.Title 
-                    level={5} 
-                    style={{ 
-                      marginTop: '8px', 
+                  <Typography.Title
+                    level={5}
+                    style={{
+                      marginTop: '8px',
                       marginBottom: '4px',
                       fontSize: '14px',
                       lineHeight: '1.2'
@@ -306,9 +244,9 @@ const CompanyList: React.FC = () => {
                   >
                     {company.name}
                   </Typography.Title>
-                  <Typography.Text 
-                    type="secondary" 
-                    style={{ 
+                  <Typography.Text
+                    type="secondary"
+                    style={{
                       fontSize: '12px',
                       display: 'block',
                       marginBottom: '8px'
@@ -318,8 +256,8 @@ const CompanyList: React.FC = () => {
                   </Typography.Text>
                 </div>
 
-                <List 
-                  size="small" 
+                <List
+                  size="small"
                   split={false}
                   style={{ fontSize: '12px' }}
                 >
