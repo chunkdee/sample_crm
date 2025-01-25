@@ -6,16 +6,14 @@ import { EditBase, Identifier, useListContext, useGetOne } from 'ra-core';
 import CustomModal from '../components/CustomModal';
 import { Contact as Cont, Company } from '../types/models';
 import { ViewToggle } from '../components/styles/ViewToggle';
-import { ActionButton, ActionGroup } from '../components/styles/ActionButtons';
-import { ColumnProps } from 'antd/es/table';
-import { TableColumn, createSortableColumn } from './tableColumnns';
+import { ActionGroup } from '../components/styles/ActionButtons';
 import { Contact } from '../datagenerator/types/crmTypes';
 import type { ColumnsType } from 'antd/es/table';
-import ViewButton from './common/ViewButton';
-import EditButton from './common/EditButton';
-import CreateButton from './common/CreateButton';
-import DeleteButton from './common/DeleteButton';
-import ReferenceResource from './common/ReferenceResource';
+import ViewButton from '../components/common/ViewButton';
+import EditButton from '../components/common/EditButton';
+import CreateButton from '../components/common/CreateButton';
+import DeleteButton from '../components/common/DeleteButton';
+import ReferenceResource from '../components/common/ReferenceResource';
 
 const { Text } = Typography;
 

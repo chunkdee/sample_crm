@@ -7,8 +7,6 @@ import CustomModal from '../components/CustomModal';
 import { Company } from '../types/models';
 import { ViewToggle } from '../components/styles/ViewToggle';
 import { ActionButton, ActionGroup } from '../components/styles/ActionButtons';
-import { ColumnProps } from 'antd/es/table';
-import { TableColumn, createSortableColumn } from './tableColumnns';
 
 const CompanyList: React.FC = () => {
   const navigate = useNavigate();

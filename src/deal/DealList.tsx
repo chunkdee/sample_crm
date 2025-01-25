@@ -150,10 +150,4 @@ const DealsList: React.FC = () => {
   );
 };
 
-const Deals: React.FC = () => (
-  <ListBase resource="deals">
-    <DealsList />
-  </ListBase>
-);
-
-export default Deals;
+export default DealsList;

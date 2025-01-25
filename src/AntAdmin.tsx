@@ -8,23 +8,20 @@ import { authProvider } from './authProvider'; // Import authProvider
 import Dashboard from './components/Dashboard';
 import Customers from './components/Customers';
 import Products from './components/Products';
-import Contacts from './components/Contacts';
-import Company from './components/Company';  // Update import path
-import CompanyAdd from './components/CompanyAdd';  // Add this import
-import Quote from './components/Quote';
+import { Contacts, ContactView,ContactAdd } from './contact/index';
+import Company from './company/Company';  // Update import path
+import CompanyAdd from './company/CompanyAdd';  // Add this import
+import Quote from './quote/Quote';  // Update import path
 import CustomLayout from './components/CustomLayout';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './App.css';
-import typography from './styles/typography';
-import EditQuote from './components/EditQuote';
-import CreateQuote from './components/CreateQuote';
+import EditQuote from './quote/EditQuote';
+import CreateQuote from './quote/CreateQuote';
 import { lightTheme, darkTheme } from './styles/theme';
 import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
 import SettingsPage from './components/SettingsPage';
-import ContactAdd from './components/ContactAdd';
-import ContactView from './components/ContactView';
-import Deals from './components/Deals';
+import Deals from './deal/Deals';  // Update import path
 
 const AntAdminContent: React.FC = () => {
   const { isDarkMode } = useTheme();
