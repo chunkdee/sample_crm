@@ -31,8 +31,9 @@ const ContactView: React.FC = () => {
           }}
         />
         <Title level={4} style={{ marginTop: 16, marginBottom: 4 }}>
-          {contact.name}
+        {`${contact.firstName} ${contact.lastName}`}
         </Title>
+        
         <Text type="secondary">{contact.position}</Text>
       </div>
 

@@ -3,10 +3,125 @@ import { Table, Button, Card, Row, Col, message, Input, Form, Tooltip, Space, Av
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, UnorderedListOutlined, AppstoreOutlined, UserOutlined, BankOutlined, TeamOutlined, EnvironmentOutlined, DollarOutlined } from '@ant-design/icons';
 import { EditBase, Identifier, useListContext } from 'ra-core';
-import CustomModal from '../components/CustomModal';
-import { Company } from '../types/models';
+import { Company } from '../datagenerator/types/crmTypes';
 import { ViewToggle } from '../components/styles/ViewToggle';
 import { ActionButton, ActionGroup } from '../components/styles/ActionButtons';
+import type { ColumnType } from 'antd/es/table';
+import CustomModal from '../components/CustomModal';
+import ViewButton from '../components/common/ViewButton';
+import EditButton from '../components/common/EditButton';
+import DeleteButton from '../components/common/DeleteButton';
+
+const { Text } = Typography;
+
+const columns: ColumnType<Company>[] = [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+    sorter: (a, b) => a.name.localeCompare(b.name),
+    render: (_, record: Company) => (
+      <Space>
+        <Avatar 
+          src={record.logo} 
+          icon={!record.logo && <BankOutlined />}
+        />
+        <Text>{record.name}</Text>
+      </Space>
+    )
+  },
+  {
+    title: 'Industry',
+    dataIndex: 'industry',
+    key: 'industry',
+    sorter: (a, b) => a.industry.localeCompare(b.industry)
+  },
+  {
+    title: 'Open Deal Amount',
+    dataIndex: 'dealAmount',
+    key: 'dealAmount'
+  },
+  {
+    title: 'Related Contacts',
+    dataIndex: 'relatedcontacts',
+    key: 'relatedcontacts'
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: '10%',
+    render: (_, record: Company) => (
+      <ActionGroup>
+        <ViewButton resource="companies" recordId={record.id} />
+        <EditButton resource="companies" recordId={record.id} />
+        <DeleteButton resource="companies" recordId={record.id} />
+      </ActionGroup>
+    )
+  }
+];
+
+const CardView: React.FC<{ company: Company }> = ({ company }) => {
+  const gridStyle = {
+    width: '100%',
+    padding: 16
+  };
+  
+  return (
+    <Card.Grid style={gridStyle}>
+      <Space direction="vertical" size="small">
+        <Space>
+          <Avatar 
+            size={48}
+            src={company.logo} 
+            icon={!company.logo && <BankOutlined />}
+          />
+          <div>
+            <Text strong>{company.name}</Text>
+            <Text type="secondary" style={{ display: 'block' }}>{company.industry}</Text>
+          </div>
+        </Space>
+        
+        <List size="small" split={false}>
+          <List.Item>
+            <Space>
+              <TeamOutlined />
+              <Text>{company.size}</Text>
+            </Space>
+          </List.Item>
+          <List.Item>
+            <Space>
+              <DollarOutlined />
+              <Text>{company.revenue ? `$${company.revenue.toLocaleString()}` : '-'}</Text>
+            </Space>
+          </List.Item>
+          <List.Item>
+            <Space>
+              <EnvironmentOutlined />
+              <Text>{company.location}</Text>
+            </Space>
+          </List.Item>
+        </List>
+
+        <ActionGroup>
+          <Tooltip title="Edit">
+            <ActionButton 
+              icon={<EditOutlined />} 
+              // onClick={() => handleEdit(company.id)} 
+            />
+          </Tooltip>
+          <Popconfirm
+            title="Delete this company?"
+            // onConfirm={() => handleDelete(company.id)}
+          >
+            <Tooltip title="Delete">
+              <ActionButton danger icon={<DeleteOutlined />} />
+            </Tooltip>
+          </Popconfirm>
+        </ActionGroup>
+      </Space>
+    </Card.Grid>
+  );
+};
 
 const CompanyList: React.FC = () => {
   const navigate = useNavigate();
@@ -36,84 +151,6 @@ const CompanyList: React.FC = () => {
     { name: 'size', label: 'Size', type: 'text', rules: [{ required: true }] },
     { name: 'revenue', label: 'Revenue', type: 'number', rules: [{ required: true }] },
     { name: 'location', label: 'Location', type: 'text', rules: [{ required: true }] },
-  ];
-
-  type Column<T> = {
-    title: string;
-    dataIndex?: keyof T;
-    key: string;
-    render?: (text: string, record: T) => React.ReactNode;
-  };
-
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a: Company, b: Company) => a.name.localeCompare(b.name),
-      render: (name: string, record: Company) => (
-        <Space>
-          <Avatar
-            src={record.logo}
-            icon={!record.logo && <BankOutlined />}
-          />
-          <Typography.Text>{name}</Typography.Text>
-        </Space>
-      )
-    },
-    {
-      title: 'Industry',
-      dataIndex: 'industry',
-      key: 'industry'
-    },
-    {
-      title: 'Size',
-      dataIndex: 'size',
-      key: 'size'
-    },
-    {
-      title: 'Revenue',
-      dataIndex: 'revenue',
-      key: 'revenue',
-      render: (revenue: number) => `$${revenue.toLocaleString()}`
-    },
-    {
-      title: 'Location',
-      dataIndex: 'location',
-      key: 'location'
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 120,
-      render: (_: any, record: Company) => (
-        <ActionGroup>
-          <Tooltip title="Edit Company">
-            <ActionButton
-              icon={<EditOutlined />}
-              onClick={() => {
-                setCompanyId(record.id);
-                setIsModalVisible(true);
-              }}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="Are you sure you want to delete this company?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-            placement="left"
-          >
-            <Tooltip title="Delete Company">
-              <ActionButton
-                danger
-                icon={<DeleteOutlined />}
-              />
-            </Tooltip>
-          </Popconfirm>
-        </ActionGroup>
-      )
-    }
   ];
 
   const handleCancel = () => {
@@ -197,94 +234,7 @@ const CompanyList: React.FC = () => {
         <Row gutter={[16, 16]}>
           {companies.map((company) => (
             <Col xs={24} sm={12} md={8} lg={6} xl={6} key={company.id}>
-              <Card
-                hoverable
-                size="small"
-                style={{
-                  height: '100%',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-                }}
-                bodyStyle={{ padding: '12px' }}
-                actions={[
-                  <Tooltip title="Edit Company">
-                    <EditOutlined key="edit" onClick={() => handleEdit(company.id)} />
-                  </Tooltip>,
-                  <Popconfirm
-                    title="Delete this company?"
-                    onConfirm={() => handleDelete(company.id)}
-                  >
-                    <DeleteOutlined key="delete" />
-                  </Popconfirm>
-                ]}
-              >
-                <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                  <Avatar
-                    src={company.logo}
-                    icon={!company.logo && <BankOutlined />}
-                    size={48}
-                    style={{
-                      border: '2px solid #1890ff',
-                      padding: '2px',
-                      background: '#fff'
-                    }}
-                  />
-                  <Typography.Title
-                    level={5}
-                    style={{
-                      marginTop: '8px',
-                      marginBottom: '4px',
-                      fontSize: '14px',
-                      lineHeight: '1.2'
-                    }}
-                  >
-                    {company.name}
-                  </Typography.Title>
-                  <Typography.Text
-                    type="secondary"
-                    style={{
-                      fontSize: '12px',
-                      display: 'block',
-                      marginBottom: '8px'
-                    }}
-                  >
-                    {company.industry}
-                  </Typography.Text>
-                </div>
-
-                <List
-                  size="small"
-                  split={false}
-                  style={{ fontSize: '12px' }}
-                >
-                  <List.Item style={{ padding: '4px 0' }}>
-                    <Space size={8}>
-                      <TeamOutlined style={{ color: '#1890ff', fontSize: '12px' }} />
-                      <Typography.Text style={{ fontSize: '12px' }}>
-                        {company.size}
-                      </Typography.Text>
-                    </Space>
-                  </List.Item>
-                  <List.Item style={{ padding: '4px 0' }}>
-                    <Space size={8}>
-                      <DollarOutlined style={{ color: '#52c41a', fontSize: '12px' }} />
-                      <Typography.Text style={{ fontSize: '12px' }}>
-                        ${company.revenue.toLocaleString()}
-                      </Typography.Text>
-                    </Space>
-                  </List.Item>
-                  <List.Item style={{ padding: '4px 0' }}>
-                    <Space size={8}>
-                      <EnvironmentOutlined style={{ color: '#722ed1', fontSize: '12px' }} />
-                      <Typography.Text style={{ fontSize: '12px' }}>
-                        {company.location}
-                      </Typography.Text>
-                    </Space>
-                  </List.Item>
-                </List>
-              </Card>
+              <CardView company={company} />
             </Col>
           ))}
         </Row>

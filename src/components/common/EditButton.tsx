@@ -24,9 +24,7 @@ const EditButton: React.FC<EditButtonProps> = ({
         type="text"
         icon={<EditOutlined />}
         onClick={() => navigate(`/${resource}/${recordId}/edit`)}
-      >
-        {label}
-      </Button>
+      />
     </CanAccess>
   );
 };
