@@ -1,9 +1,10 @@
 import React from 'react';
 import { useShowController } from 'ra-core';
-import { Card, Avatar, Typography, List, Space, Spin } from 'antd';
+import { Card, Avatar, Typography, List, Space, Spin, Col, Row } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, BankOutlined } from '@ant-design/icons';
 import { Contact , Company } from '../datagenerator/types/crmTypes';
 import ReferenceResource from '../components/common/ReferenceResource';
+import NoteCard from '../note/Note';
 
 const { Title, Text } = Typography;
 
@@ -14,12 +15,15 @@ const ContactView: React.FC = () => {
   if (!contact) return null;
 
   return (
+  <div style={{ padding: 24 }}>
+    <Row gutter={[24, 24]}>
+    <Col span={24}>
     <Card>
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <Avatar 
           size={80} 
-          src={contact.avatar}
-          icon={!contact.avatar && <UserOutlined />}
+          src={contact.profileImage}
+          icon={!contact.profileImage && <UserOutlined />}
           style={{ 
             backgroundColor: '#1890ff',
             padding: 4,
@@ -60,6 +64,15 @@ const ContactView: React.FC = () => {
         </List.Item>
       </List>
     </Card>
+    </Col>
+    <Col span={16}>
+          <NoteCard 
+            resource="contacts"
+            id={contact.id}
+          />
+        </Col>
+    </Row>
+  </div>
   );
 };
 

@@ -17,6 +17,12 @@
 5. **Define `handleDelete` Function:**
    Define the `handleDelete` function to handle the delete logic.
 
+6. **Style the Component:**
+   Style the component to display other properties in contact records like the profile picture.
+
+7. **Add Notes Section:**
+   Add a section to add notes to the contact.
+
 ## Example Updates
 
 ### Update Import Statements
@@ -32,11 +38,11 @@ import { ReferenceResource } from '../common/ReferenceResource';
 
 #### After:
 ```typescript
-import React from 'react';
+import React, { useState } from 'react';
 import { Contact, Company } from '../datagenerator/types/crmTypes';
 import { ViewButton, EditButton, DeleteButton } from '../../components/common';
-import { Card, Tooltip, Avatar, Typography, List, Space, Popconfirm } from 'antd';
-import { UserOutlined, BankOutlined, PhoneOutlined } from '@ant-design/icons';
+import { Card, Tooltip, Avatar, Typography, List, Space, Popconfirm, Input, Button, message } from 'antd';
+import { UserOutlined, BankOutlined, PhoneOutlined, PlusOutlined } from '@ant-design/icons';
 import ReferenceResource from '../../components/common/ReferenceResource';
 import { Identifier } from 'ra-core';
 ```
@@ -158,12 +164,42 @@ const ContactView: React.FC<{ contact: Cont }> = ({ contact }) => {
 
 #### After:
 ```typescript
+const { Text } = Typography;
+const { TextArea } = Input;
+
 const handleDelete = (id: Identifier): void => {
   // Implement the delete logic here
   console.log(`Deleting contact with ID: ${id}`);
 };
 
 const ContactView: React.FC<{ contact: Contact }> = ({ contact }) => {
+  const [newNote, setNewNote] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+
+    setSavingNote(true);
+    try {
+      const newNoteData = {
+        id: Date.now(),
+        content: newNote,
+        date: new Date().toISOString(),
+        contactId: contact.id,
+      };
+
+      // Implement the logic to save the note
+      console.log('Note added:', newNoteData);
+
+      setNewNote('');
+      message.success('Note added successfully');
+    } catch (error) {
+      message.error('Failed to add note');
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
   return (
     <Card
       hoverable
@@ -257,6 +293,25 @@ const ContactView: React.FC<{ contact: Contact }> = ({ contact }) => {
           </Space>
         </List.Item>
       </List>
+
+      <div style={{ marginTop: '16px' }}>
+        <Typography.Title level={5}>Notes</Typography.Title>
+        <TextArea
+          rows={4}
+          value={newNote}
+          onChange={(e) => setNewNote(e.target.value)}
+          placeholder="Add a note..."
+        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          style={{ marginTop: '8px' }}
+          onClick={handleAddNote}
+          loading={savingNote}
+        >
+          Add Note
+        </Button>
+      </div>
     </Card>
   );
 };
@@ -264,4 +319,4 @@ const ContactView: React.FC<{ contact: Contact }> = ({ contact }) => {
 
 ## Summary
 
-These changes will update the ContactView component to use the Contact and Company types from crmTypes.ts. Ensure the import paths for `ViewButton`, `EditButton`, `DeleteButton`, and `ReferenceResource` are correct. Define the `handleDelete` function to handle the delete logic.
+These changes will update the ContactView component to use the Contact and Company types from crmTypes.ts. Ensure the import paths for `ViewButton`, `EditButton`, `DeleteButton`, and `ReferenceResource` are correct. Define the `handleDelete` function to handle the delete logic. Style the component to display other properties in contact records like the profile picture. Add a section to add notes to the contact.

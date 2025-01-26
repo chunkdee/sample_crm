@@ -22,6 +22,7 @@ import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
 import SettingsPage from './components/SettingsPage';
 import Deals from './deal/Deals';  // Update import path
+import Opporturnity from './deal/Opportunity';  // Update import path
 
 const AntAdminContent: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -68,6 +69,10 @@ const AntAdminContent: React.FC = () => {
           <Resource 
             name="deals" 
             list={Deals}
+          />
+           <Resource 
+            name="opportunities" 
+            list={Opporturnity}
           />
         </CoreAdmin>
       </Router>

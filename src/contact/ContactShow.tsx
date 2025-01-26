@@ -3,7 +3,7 @@ import { ShowBase } from 'ra-core';
 import ContactView from './ContactView';
 
 const ContactShow = () => (
-  <ShowBase resource="contacts">
+  <ShowBase resource="contacts" >
     <ContactView />
   </ShowBase>
 );

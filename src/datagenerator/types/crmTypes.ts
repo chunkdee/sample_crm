@@ -1,6 +1,23 @@
 // types/crmTypes.ts
 
 
+export type OpportunityStage =  'Prospecting' | 'Qualification' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
+export enum DealStatus {
+  New = 'New',
+  Qualified = 'Qualified',
+  Proposal = 'Proposal',
+  Negotiation = 'Negotiation',
+  ClosedWon = 'Closed Won',
+  ClosedLost = 'Closed Lost'
+}
+
+export enum DealStage {
+  InitialContact = 'Initial Contact',
+  Meeting = 'Meeting',
+  Proposal = 'Proposal',
+  Contract = 'Contract',
+  Closed = 'Closed'
+}
 
 type Identifier = string | number;
 
@@ -74,7 +91,7 @@ interface BaseEntity<IdentifierType extends Identifier = Identifier>
   interface Opportunity extends BaseEntity {
     name: string;
     amount: number;
-    stage: 'Prospecting' | 'Qualification' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
+    stage: OpportunityStage// 'Prospecting' | 'Qualification' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
     closeDate: Date;
     companyId: string;
     company?: Company;

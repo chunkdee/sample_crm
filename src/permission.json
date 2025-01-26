@@ -2,10 +2,11 @@
   "permission" :  [
     { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "companies" }},
     { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "contacts" }},
-    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "deals" }},
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "opportunities" }},
     { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "quotes" }},
     { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "customers" }},
     { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "dashboard" }},
+    { "roleId": 1, "permission": { "action": ["list", "create", "edit", "delete", "show"], "resource": "notes" }},
     { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "companies" }},
     { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "contacts" }},
     { "roleId": 2, "permission": { "action": ["list", "show"], "resource": "deals" }},

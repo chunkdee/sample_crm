@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Card, Typography, Tag, Avatar, Space, Statistic, Input, Button } from 'antd';
-import { UserOutlined, DollarOutlined, CalendarOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Typography, Tag , Space, Statistic, Input, Button } from 'antd';
+import {  DollarOutlined, PlusOutlined } from '@ant-design/icons';
 import { useListContext, useUpdate } from 'ra-core';
-import { Deal } from '../types/models';
+import { Opportunity } from '../datagenerator/types/crmTypes';
 import { Container, BoardContainer, Column, ColumnHeader, DealCard } from '../styles/DealStyles';
 import { theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
+import {OpportunityStage} from '../datagenerator/types/crmTypes';
 
 const { Title, Text } = Typography;
 
-const dealStatuses = ['New', 'Qualified', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'];
+//const opportunityStatuses = ['New', 'Qualified', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'];
+
+const opportunityStageArray: OpportunityStage[] = [ 'Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost' ];
 
 const statusColors: Record<string, string> = {
   'New': 'blue',
@@ -22,9 +24,9 @@ const statusColors: Record<string, string> = {
   'Closed Lost': 'red'
 };
 
-const DealsList: React.FC = () => {
+const OpportunityList: React.FC = () => {
   const navigate = useNavigate();
-  const { data: deals, refetch, setFilters } = useListContext<Deal>();
+  const { data: opportunities, refetch, setFilters } = useListContext<Opportunity>();
   const [update] = useUpdate();
   const { token } = theme.useToken();
   const [searchText, setSearchText] = useState('');
@@ -32,28 +34,28 @@ const DealsList: React.FC = () => {
   const handleDragEnd = async (result: any) => {
     if (!result.destination) return;
 
-    const dealId = result.draggableId;
-    const newStatus = dealStatuses[result.destination.droppableId];
+    const opportunityId = result.draggableId;
+    const newStage = opportunityStageArray[result.destination.droppableId];
 
     try {
       await update(
-        'deals',
+        'opportunities',
         {
-          id: dealId,
-          data: { status: newStatus }
+          id: opportunityId,
+          data: { stage: newStage }
         }
       );
       refetch();
     } catch (error) {
-      console.error('Failed to update deal status:', error);
+      console.error('Error updating opportunity stage:', error);
     }
   };
 
-  const groupedDeals = deals?.reduce((acc: Record<string, Deal[]>, deal: Deal) => {
-    if (!acc[deal.status]) {
-      acc[deal.status] = [];
+  const groupedOpportunities = opportunities?.reduce((acc: Record<string, Opportunity[]>, opportunity: Opportunity) => {
+    if (!acc[opportunity.stage]) {
+      acc[opportunity.stage] = [];
     }
-    acc[deal.status].push(deal);
+    acc[opportunity.stage].push(opportunity);
     return acc;
   }, {});
 
@@ -68,13 +70,12 @@ const DealsList: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => navigate('/deals/create')}
+          onClick={() => navigate('/opportunities/create')}
         >
-          Create Deal
+          Create Opportunity
         </Button>
-        <Input
-          placeholder="Search deals..."
-          prefix={<SearchOutlined />}
+        <Input.Search
+          placeholder="Search opportunities..."
           value={searchText}
           onChange={(e) => {
             setSearchText(e.target.value);
@@ -86,7 +87,7 @@ const DealsList: React.FC = () => {
       
       <DragDropContext onDragEnd={handleDragEnd}>
         <BoardContainer>
-          {dealStatuses.map((status, columnIndex) => (
+          {opportunityStageArray.map((status, columnIndex) => (
             <Droppable key={status} droppableId={String(columnIndex)}>
               {(provided) => (
                 <Column
@@ -98,14 +99,14 @@ const DealsList: React.FC = () => {
                       {status}
                     </Title>
                     <Tag color={statusColors[status]}>
-                      {groupedDeals?.[status]?.length || 0}
+                      {groupedOpportunities?.[status]?.length || 0}
                     </Tag>
                   </ColumnHeader>
 
-                  {groupedDeals?.[status]?.map((deal: Deal, index: number) => (
+                  {groupedOpportunities?.[status]?.map((opportunity: Opportunity, index: number) => (
                     <Draggable 
-                      key={deal.id} 
-                      draggableId={String(deal.id)} 
+                      key={opportunity.id} 
+                      draggableId={String(opportunity.id)} 
                       index={index}
                     >
                       {(provided) => (
@@ -116,12 +117,12 @@ const DealsList: React.FC = () => {
                           {...provided.dragHandleProps}
                         >
                           <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                            <Text strong style={{ fontSize: '12px' }}>{deal.name}</Text>
+                            <Text strong style={{ fontSize: '12px' }}>{opportunity.name}</Text>
                             
                             <Space>
                               <DollarOutlined style={{ fontSize: '12px' }} />
                               <Statistic 
-                                value={deal.value} 
+                                value={opportunity.value} 
                                 precision={0} 
                                 prefix="$"
                                 valueStyle={{ fontSize: '12px' }}
@@ -129,10 +130,10 @@ const DealsList: React.FC = () => {
                             </Space>
 
                             <Tag 
-                              color={deal.probability >= 70 ? 'green' : deal.probability >= 40 ? 'orange' : 'red'}
+                              color={opportunity.probability >= 70 ? 'green' : opportunity.probability >= 40 ? 'orange' : 'red'}
                               style={{ fontSize: '11px', margin: 0 }}
                             >
-                              {deal.probability}%
+                              {opportunity.probability}%
                             </Tag>
                           </Space>
                         </DealCard>
@@ -150,4 +151,4 @@ const DealsList: React.FC = () => {
   );
 };
 
-export default DealsList;
+export default OpportunityList;

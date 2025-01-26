@@ -272,6 +272,6 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
 
 // Generate sample data and save to db.json
 //export default generateSampleData
- const sampleData = generateSampleData(5, 5, 10, 10, 5, 20, 20, 20, 5);
+ const sampleData = generateSampleData(5, 5, 5, 10, 5, 20, 10, 20, 5);
 
  export default sampleData;
