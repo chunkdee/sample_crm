@@ -9,11 +9,11 @@ import LifeCycleStages from '../components/common/LifecyleStages';
 
 const { Title, Text } = Typography;
 
-const ContactView: React.FC = () => {
-  const { record: contact, isLoading } = useShowController<Contact>();
+const CompanyView: React.FC = () => {
+  const { record: company, isLoading } = useShowController<Company>();
 
   if (isLoading) return <Spin size="large" />;
-  if (!contact) return null;
+  if (!company) return null;
 
   return (
   <div style={{ padding: 24 }}>
@@ -23,8 +23,8 @@ const ContactView: React.FC = () => {
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <Avatar 
           size={80} 
-          src={contact.profileImage}
-          icon={!contact.profileImage && <UserOutlined />}
+          src={company.logo}
+          icon={!company.logo && <UserOutlined />}
           style={{ 
             backgroundColor: '#1890ff',
             padding: 4,
@@ -32,37 +32,25 @@ const ContactView: React.FC = () => {
           }}
         />
         <Title level={4} style={{ marginTop: 16, marginBottom: 4 }}>
-        {`${contact.firstName} ${contact.lastName}`}
+        {`${company.name}`}
         </Title>    
-        <Text type="secondary">{contact.position}</Text>
+        <Text type="secondary">{company.industry}</Text>
       </div>
 
       <List itemLayout="horizontal" split={false}>
         <List.Item>
           <Space>
             <MailOutlined style={{ color: '#1890ff' }} />
-            <Text copyable>{contact.email}</Text>
+            <Text copyable>{company.website}</Text>
           </Space>
         </List.Item>
         <List.Item>
           <Space>
             <PhoneOutlined style={{ color: '#52c41a' }} />
-            <Text>{contact.phone}</Text>
+            <Text>{company.phone}</Text>
           </Space>
         </List.Item>
-        <List.Item>
-          <ReferenceResource<Company> 
-            resource="companies" 
-            id={contact.companyId || ''}
-          >
-            {(company) => (
-              <Space>
-                <BankOutlined style={{ color: '#722ed1' }} />
-                <Text>{company.name}</Text>
-              </Space>
-            )}
-          </ReferenceResource>
-        </List.Item>
+        
       </List>
     </Card>
     </Col>
@@ -74,8 +62,8 @@ const ContactView: React.FC = () => {
         </Col>
     <Col span={16}>
           <NoteCard 
-            resource="contacts"
-            id={contact.id}
+            resource="companies"
+            id={company.id}
           />
         </Col>
     </Row>
@@ -83,4 +71,4 @@ const ContactView: React.FC = () => {
   );
 };
 
-export default ContactView;
+export default CompanyView;
