@@ -60,68 +60,75 @@ const columns: ColumnType<Company>[] = [
   }
 ];
 
-const CardView: React.FC<{ company: Company }> = ({ company }) => {
-  const gridStyle = {
-    width: '100%',
-    padding: 16
-  };
-  
-  return (
-    <Card.Grid style={gridStyle}>
-      <Space direction="vertical" size="small">
-        <Space>
-          <Avatar 
-            size={48}
-            src={company.logo} 
-            icon={!company.logo && <BankOutlined />}
-          />
-          <div>
-            <Text strong>{company.name}</Text>
-            <Text type="secondary" style={{ display: 'block' }}>{company.industry}</Text>
-          </div>
-        </Space>
-        
-        <List size="small" split={false}>
-          <List.Item>
-            <Space>
-              <TeamOutlined />
-              <Text>{company.size}</Text>
-            </Space>
-          </List.Item>
-          <List.Item>
-            <Space>
-              <DollarOutlined />
-              <Text>{company.revenue ? `$${company.revenue.toLocaleString()}` : '-'}</Text>
-            </Space>
-          </List.Item>
-          <List.Item>
-            <Space>
-              <EnvironmentOutlined />
-              <Text>{company.location}</Text>
-            </Space>
-          </List.Item>
-        </List>
-
-        <ActionGroup>
-          <Tooltip title="Edit">
-            <ActionButton 
-              icon={<EditOutlined />} 
-              // onClick={() => handleEdit(company.id)} 
-            />
-          </Tooltip>
-          <Popconfirm
-            title="Delete this company?"
-            // onConfirm={() => handleDelete(company.id)}
-          >
-            <Tooltip title="Delete">
-              <ActionButton danger icon={<DeleteOutlined />} />
-            </Tooltip>
-          </Popconfirm>
-        </ActionGroup>
-      </Space>
-    </Card.Grid>
-  );
+const gridStyle = {
+  width: '100%',
+  padding: '12px',
+  borderRadius: '8px',
+  marginBottom: '8px',
+  cursor: 'pointer',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
 };
+
+const CardView: React.FC<{ company: Company }> = ({ company }) => (
+  <Card.Grid 
+    style={gridStyle}
+    hoverable
+  >
+    <Space direction="vertical" size="small" style={{ width: '100%' }}>
+      <Space>
+        <Avatar 
+          size={48}
+          src={company.logo} 
+          icon={!company.logo && <BankOutlined />}
+          style={{ 
+            border: '2px solid #1890ff',
+            padding: '2px',
+            background: '#fff'
+          }}
+        />
+        <div>
+          <Text strong style={{ fontSize: '14px' }}>{company.name}</Text>
+          <Text type="secondary" style={{ display: 'block', fontSize: '12px' }}>
+            {company.industry}
+          </Text>
+        </div>
+      </Space>
+      
+      <List 
+        size="small" 
+        split={false}
+        style={{ fontSize: '12px' }}
+      >
+        <List.Item style={{ padding: '4px 0' }}>
+          <Space size={8}>
+            <TeamOutlined style={{ color: '#1890ff', fontSize: '12px' }} />
+            <Text style={{ fontSize: '12px' }}>{company.size}</Text>
+          </Space>
+        </List.Item>
+        <List.Item style={{ padding: '4px 0' }}>
+          <Space size={8}>
+            <DollarOutlined style={{ color: '#52c41a', fontSize: '12px' }} />
+            <Text style={{ fontSize: '12px' }}>
+              {company.revenue ? `$${company.revenue.toLocaleString()}` : '-'}
+            </Text>
+          </Space>
+        </List.Item>
+        <List.Item style={{ padding: '4px 0' }}>
+          <Space size={8}>
+            <EnvironmentOutlined style={{ color: '#722ed1', fontSize: '12px' }} />
+            <Text style={{ fontSize: '12px' }}>{company.location}</Text>
+          </Space>
+        </List.Item>
+      </List>
+
+      <ActionGroup>
+        <ViewButton resource="companies" recordId={company.id} />
+        <EditButton resource="companies" recordId={company.id} />
+        <DeleteButton resource="companies" recordId={company.id} />
+      </ActionGroup>
+    </Space>
+  </Card.Grid>
+);
 
 const CompanyList: React.FC = () => {
   const navigate = useNavigate();
@@ -169,7 +176,7 @@ const CompanyList: React.FC = () => {
   }
 
   return (
-    <div>
+    <Card>
       <div style={{
         marginBottom: 16,
         display: 'flex',
@@ -234,7 +241,72 @@ const CompanyList: React.FC = () => {
         <Row gutter={[16, 16]}>
           {companies.map((company) => (
             <Col xs={24} sm={12} md={8} lg={6} xl={6} key={company.id}>
-              <CardView company={company} />
+              <Card
+                hoverable
+                size="small"
+                style={{ 
+                  height: '100%',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                  <Avatar 
+                    src={company.logo} 
+                    icon={!company.logo && <BankOutlined />}
+                    size={60}
+                    style={{ 
+                      border: '2px solid #1890ff',
+                      padding: '2px',
+                      background: '#fff'
+                    }}
+                  />
+                  <Typography.Title level={5} style={{ 
+                    marginTop: '8px', 
+                    marginBottom: '4px',
+                    fontSize: '14px'
+                  }}>
+                    {company.name}
+                  </Typography.Title>
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+                    {company.industry}
+                  </Typography.Text>
+                </div>
+
+                <List 
+                  size="small" 
+                  split={false}
+                  style={{ fontSize: '12px' }}
+                >
+                  <List.Item style={{ padding: '4px 0' }}>
+                    <Space size={8}>
+                      <TeamOutlined style={{ color: '#1890ff', fontSize: '12px' }} />
+                      <Text style={{ fontSize: '12px' }}>{company.size}</Text>
+                    </Space>
+                  </List.Item>
+                  <List.Item style={{ padding: '4px 0' }}>
+                    <Space size={8}>
+                      <DollarOutlined style={{ color: '#52c41a', fontSize: '12px' }} />
+                      <Text style={{ fontSize: '12px' }}>
+                        {company.revenue ? `$${company.revenue.toLocaleString()}` : '-'}
+                      </Text>
+                    </Space>
+                  </List.Item>
+                  <List.Item style={{ padding: '4px 0' }}>
+                    <Space size={8}>
+                      <EnvironmentOutlined style={{ color: '#722ed1', fontSize: '12px' }} />
+                      <Text style={{ fontSize: '12px' }}>{company.location}</Text>
+                    </Space>
+                  </List.Item>
+                </List>
+
+                <ActionGroup>
+                  <ViewButton resource="companies" recordId={company.id} />
+                  <EditButton resource="companies" recordId={company.id} />
+                  <DeleteButton resource="companies" recordId={company.id} />
+                </ActionGroup>
+              </Card>
             </Col>
           ))}
         </Row>
@@ -250,7 +322,7 @@ const CompanyList: React.FC = () => {
           />
         </EditBase>
       )}
-    </div>
+    </Card>
   );
 };
 
