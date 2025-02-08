@@ -8,7 +8,7 @@ import TextArea from 'antd/es/input/TextArea';
 const { Text } = Typography;
 
 interface NoteComponentProps {
-  resource: string;
+  targetEntity: string;
   id: Identifier;
 }
 
@@ -23,7 +23,7 @@ const formatDate = (date: Date) => {
   }).format(new Date(date));
 };
 
-const NoteCard: React.FC<NoteComponentProps> = ({ resource, id }) => {
+const NoteCard: React.FC<NoteComponentProps> = ({ targetEntity, id }) => {
 
   const [newNote, setNewNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,7 +31,7 @@ const NoteCard: React.FC<NoteComponentProps> = ({ resource, id }) => {
   const { data:userData,isPending:isLoadingCache} = useGetIdentity();
 
   const {data , isPending , error , refetch} = useGetManyReference<Note>('notes', {
-    target: `${resource.substring(0, resource.length-1)}Id`,
+    target: `${targetEntity}Id`,
     id: id,
     sort: { field: 'createdAt', order: 'DESC' }
   });
@@ -45,7 +45,7 @@ const NoteCard: React.FC<NoteComponentProps> = ({ resource, id }) => {
       await create('notes', { 
         data: {
           content: newNote,
-          [resource.substring(0, resource.length-1) + 'Id']: id,
+          [targetEntity + 'Id']: id,
           user: userData as User,
           createdAt: new Date(),
           updatedAt: new Date()

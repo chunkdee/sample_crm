@@ -23,6 +23,8 @@ import ProfilePage from './components/ProfilePage';
 import SettingsPage from './components/SettingsPage';
 import Deals from './deal/Deals';  // Update import path
 import Opporturnity from './deal/Opportunity';  // Update import path
+import ContactShow from './contact/ContactShow';
+import CompanyShow from './company/CompanyShow';
 
 const AntAdminContent: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -53,12 +55,13 @@ const AntAdminContent: React.FC = () => {
             name="contacts" 
             list={Contacts}
             create={ContactAdd}
-            show={ContactView}
+            show={ContactShow}
           />
           <Resource 
   name="companies" 
   list={Company}
   create={CompanyAdd}
+  show={CompanyShow}
 />
           <Resource 
             name="quotes" 

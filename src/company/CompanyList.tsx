@@ -3,7 +3,7 @@ import { Table, Button, Card, Row, Col, message, Input, Form, Tooltip, Space, Av
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, UnorderedListOutlined, AppstoreOutlined, UserOutlined, BankOutlined, TeamOutlined, EnvironmentOutlined, DollarOutlined } from '@ant-design/icons';
 import { EditBase, Identifier, useListContext } from 'ra-core';
-import { Company } from '../datagenerator/types/crmTypes';
+import { Company, Contact } from '../datagenerator/types/crmTypes';
 import { ViewToggle } from '../components/styles/ViewToggle';
 import { ActionButton, ActionGroup } from '../components/styles/ActionButtons';
 import type { ColumnType } from 'antd/es/table';
@@ -11,8 +11,41 @@ import CustomModal from '../components/CustomModal';
 import ViewButton from '../components/common/ViewButton';
 import EditButton from '../components/common/EditButton';
 import DeleteButton from '../components/common/DeleteButton';
+import ReferenceManyResource from '../components/common/ReferenceManyResource';
 
 const { Text } = Typography;
+
+
+const ContactRelatedAvatar: React.FC<{ data: Contact[], total?:number }> = ({ data, total }) => {
+  return (
+    <Space>
+      {data.slice(0, 3).map((contact: Contact) => (
+        <Avatar
+          key={contact.id}
+          size="small"
+          src={contact?.profileImage}
+          icon={!contact.profileImage && <UserOutlined />}
+        />
+      ))}
+      {total && total > 3 ? <Text>+{total - 3}</Text> : null}
+    </Space>
+  );
+};
+
+
+const ContactCell: React.FC<{ companyId: Identifier }> = ({ companyId }) => {
+  return (
+    <ReferenceManyResource<Contact>
+      resource="contacts"
+      id={companyId}
+      target='companyId'
+    >
+      {(contacts,total) => (
+        <ContactRelatedAvatar data={contacts} total={total} />
+      )}
+    </ReferenceManyResource>
+  );
+};
 
 const columns: ColumnType<Company>[] = [
   {
@@ -44,7 +77,9 @@ const columns: ColumnType<Company>[] = [
   {
     title: 'Related Contacts',
     dataIndex: 'relatedcontacts',
-    key: 'relatedcontacts'
+    key: 'relatedcontacts',
+    render: (_, record: Company) => <ContactCell companyId={record.id} />,
+     width: '20%'
   },
   {
     title: 'Actions',

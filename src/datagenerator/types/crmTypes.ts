@@ -178,6 +178,28 @@ interface BaseEntity<IdentifierType extends Identifier = Identifier>
     generatedOn: Date;
     content: string;
   }
+
+  interface Quote extends BaseEntity {
+    quoteNumber: string;
+    opportunityId: Identifier;
+    opportunity?: Opportunity;
+    contactId: Identifier;
+    contact?: Contact;
+    companyId: Identifier;
+    company?: Company;
+    items: QuoteItem[];
+    totalAmount: number;
+    status: 'Draft' | 'Sent' | 'Accepted' | 'Rejected';
+  }
+  
+  interface QuoteItem {
+    productId: Identifier;
+    product?: any[]//ProductService;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }
+  
   
   // Exporting all types
   export type {
@@ -191,4 +213,5 @@ interface BaseEntity<IdentifierType extends Identifier = Identifier>
     Note,
     Task,
     Report,
+    Quote,
   };

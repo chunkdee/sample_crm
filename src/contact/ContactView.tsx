@@ -1,16 +1,17 @@
 import React from 'react';
-import { useShowController } from 'ra-core';
+import { useShowContext } from 'ra-core';
 import { Card, Avatar, Typography, List, Space, Spin, Col, Row } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, BankOutlined } from '@ant-design/icons';
 import { Contact , Company } from '../datagenerator/types/crmTypes';
 import ReferenceResource from '../components/common/ReferenceResource';
 import NoteCard from '../note/Note';
 import LifeCycleStages from '../components/common/LifecyleStages';
+import TaskCard from '../task/Task';
 
 const { Title, Text } = Typography;
 
 const ContactView: React.FC = () => {
-  const { record: contact, isLoading } = useShowController<Contact>();
+  const { record: contact, isLoading } = useShowContext<Contact>();
 
   if (isLoading) return <Spin size="large" />;
   if (!contact) return null;
@@ -74,7 +75,13 @@ const ContactView: React.FC = () => {
         </Col>
     <Col span={16}>
           <NoteCard 
-            resource="contacts"
+            targetEntity="contact"
+            id={contact.id}
+          />
+        </Col>
+    <Col span={16}>
+          <TaskCard 
+            targetEntity="contact"
             id={contact.id}
           />
         </Col>
