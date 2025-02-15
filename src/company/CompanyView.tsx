@@ -18,7 +18,7 @@ const CompanyView: React.FC = () => {
   if (!company) return null;
 
   return (
-  <div style={{ padding: 24 }}>
+  <div>
     <Row gutter={[24, 24]}>
     <Col span={24}>
     <Card>

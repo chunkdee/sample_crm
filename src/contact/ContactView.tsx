@@ -17,7 +17,7 @@ const ContactView: React.FC = () => {
   if (!contact) return null;
 
   return (
-  <div style={{ padding: 24 }}>
+  <div>
     <Row gutter={[24, 24]}>
     <Col span={24}>
     <Card>
@@ -71,15 +71,15 @@ const ContactView: React.FC = () => {
     <Col span={24}>
     <Card title="Life Cycle Stages :">
          <LifeCycleStages DealStage="Negotiation"></LifeCycleStages>
-         </Card>
-        </Col>
+    </Card>
+    </Col>
     <Col span={16}>
           <NoteCard 
             targetEntity="contact"
             id={contact.id}
           />
         </Col>
-    <Col span={16}>
+    <Col span={8}>
           <TaskCard 
             targetEntity="contact"
             id={contact.id}

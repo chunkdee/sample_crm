@@ -2,6 +2,9 @@
 
 
 export type OpportunityStage =  'Prospecting' | 'Qualification' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
+
+export type TaskTitle =  'Email' | 'Call' | 'Meeting' | 'Follow-up' | 'Thank you' | 'None';
+
 export enum DealStatus {
   New = 'New',
   Qualified = 'Qualified',

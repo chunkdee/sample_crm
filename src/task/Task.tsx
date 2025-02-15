@@ -1,28 +1,36 @@
-import React from 'react';
-import { Button, Card, Modal, Form, Input, DatePicker, List, Typography, message } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React, { useEffect } from 'react';
+import { Button, Card, Modal, Form, Input, DatePicker, List, Typography, Tag, message } from 'antd';
+import { PlusOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { Task } from '../datagenerator/types/crmTypes';
-import { Identifier, ListBase, useCreate, useGetIdentity, useGetManyReference, useListController } from 'ra-core';
+import { Identifier, useCreate, useGetIdentity, useGetManyReference } from 'ra-core';
 
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 interface TaskComponentProps {
   targetEntity: string;
   id: Identifier;
 }
 
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(new Date(date));
+};
+
 const TaskCard: React.FC<TaskComponentProps>  = ({ targetEntity, id }) => {
- 
+
   const { data:userData,isPending:isLoadingCache} = useGetIdentity();
   const [isModalVisible, setIsModalVisible] = React.useState<boolean>(false);
-  const [create, {isLoading }] = useCreate<Task>('tasks');
+  const [IsNewTask, setIsNewTask] = React.useState<boolean>(false);
+  const [create, { isLoading }] = useCreate<Task>('tasks');
 
-  
-  const {data , isPending , error , refetch} = useGetManyReference<Task>('tasks', {
-        target: `${targetEntity}Id`,
-        id: id,
-        sort: { field: 'createdAt', order: 'DESC' }
-        });
+  const { data, isPending , refetch } = useGetManyReference<Task>('tasks', {
+    target: `${targetEntity}Id`,
+    id: id,
+    sort: { field: 'createdAt', order: 'DESC' },
+  });
 
 
   const showModal = () => {
@@ -33,12 +41,13 @@ const TaskCard: React.FC<TaskComponentProps>  = ({ targetEntity, id }) => {
     setIsModalVisible(false);
   };
 
-  
   const handleOk = async (values: Task) => {
 
-    await create('tasks',
+    await create(
+      'tasks',
       {
         data: {
+          [targetEntity + 'Id']: id,
           title: values.title,
           description: values.description,
           dueDate: values.dueDate,
@@ -47,81 +56,123 @@ const TaskCard: React.FC<TaskComponentProps>  = ({ targetEntity, id }) => {
       },
       {
         onSuccess: () => {
-          refetch();
+        //  setIsNewTask(true)
+           refetch();
           setIsModalVisible(false);
+          message.success('Task created successfully!');
         },
-
-        onError: (error : any) => {
-          console.error("Error creating task:", error);
+        onError: (error: any) => {
+          console.error('Error creating task:', error);
+          message.error('Failed to create task.');
         },
       }
     );
   };
 
-  return (
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
 
-    <Card
-    title="Create Task"
-    style={{ width: 400, margin: '20px auto' }}
-    >
-    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-        Create Task
-    </Button>
+  return (
+     <Card title="Tasks"  style={{
+     
+         borderRadius: '8px',
+         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+         marginBottom: '16px',
+     
+      }}
+      >
+
+      <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+        Add Task
+      </Button>
+     
 
       <Modal
-        title="Create Task"
-        visible={isModalVisible}
+        title="Create New Task"
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
             Cancel
           </Button>,
-          <Button key="submit" type="primary" htmlType="submit" form="taskForm" loading={isLoading}>
+          <Button
+            key="submit"
+            type="primary"
+            htmlType="submit"
+            form="taskForm"
+            loading={isLoading}
+          >
             Create
           </Button>,
         ]}
       >
-        <Form id="taskForm" onFinish={handleOk}>
-          <Form.Item
-            name="title"
-            label="Title"
-            rules={[{ required: true, message: 'Please input the title!' }]}
+        <Card>
+          <Form
+            id="taskForm"
+            onFinish={handleOk}
+            layout="vertical"
+            initialValues={{ completed: false }}
           >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            rules={[{ required: true, message: 'Please input the description!' }]}
-          >
-            <Input.TextArea />
-          </Form.Item>
-          <Form.Item
-            name="dueDate"
-            label="Due Date"
-            rules={[{ required: true, message: 'Please select the due date!' }]}
-          >
-            <DatePicker />
-          </Form.Item>
-        </Form>
+            <Form.Item
+              name="title"
+              label="Title"
+              rules={[{ required: true, message: 'Please enter the title!' }]}
+            >
+              <Input placeholder="Enter task title" />
+            </Form.Item>
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[
+                { required: true, message: 'Please enter the description!' },
+              ]}
+            >
+              <Input.TextArea
+                placeholder="Enter task description"
+                autoSize={{ minRows: 3, maxRows: 6 }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="dueDate"
+              label="Due Date"
+              rules={[{ required: true, message: 'Please select the due date!' }]}
+            >
+              <DatePicker style={{ width: '100%' }} />
+            </Form.Item>
+          </Form>
+        </Card>
       </Modal>
-  
+
       <List
-            loading={isLoading}
-            dataSource={data}
-            renderItem={(task: Task) => (
-              <List.Item>
-                 <Card
-                  title={task.title}
-                  style={{ width: '100%', marginBottom: '16px' }}
-                >
-                  <Text>{task.description}</Text>
-                  <Text type="secondary">Due Date: {task.dueDate.toLocaleDateString()}</Text>
-                </Card>
-              </List.Item>
-            )}
-          />
+        loading={isPending}
+        dataSource={data}
+        renderItem={(task: Task) => (
+          <List.Item key={task.id} style={{ padding: '16px', borderBottom: '1px solid #e8e8e8' }}>
+            <div style={{ width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <Text strong>{task.title}</Text>
+                {task.completed ? (
+                  <Tag icon={<CheckCircleOutlined />} color="success">
+                    Completed
+                  </Tag>
+                ) : (
+                  <Tag icon={<ClockCircleOutlined />} color="processing">
+                    In Progress
+                  </Tag>
+                )}
+              </div>
+              <Paragraph ellipsis={{ rows: 2 }}>{task.description}</Paragraph>
+              <Text type="secondary">
+                Due Date: {formatDate(task.dueDate)}
+              </Text>
+            </div>
+          </List.Item>
+        )}
+      />
+
       
+
     </Card>
   );
 };

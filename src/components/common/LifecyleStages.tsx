@@ -90,18 +90,18 @@ const colorChange = keyframes`
 const PipelineContainer = styled.div`
   display: flex;
   gap: 2px; /* Reduced spacing between stages */
-  padding: 16px; /* Padding inside the border */
+  padding: 8px; /* Padding inside the border */
   justify-content: center;
   border: 1px solid #e0e0e0; /* Subtle border */
   border-radius: 12px; /* Rounded corners */
   background-color: #ffffff; /* White background */
   width: fit-content; /* Fit the content width */
-  margin: 24px auto; /* Center the container */
+   /*  margin: 0px auto;Center the container */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 `;
 
 const Stage = styled.div`
-  padding: 12px 24px; /* Larger padding for better spacing */
+  padding: 8px 24px; /* Larger padding for better spacing */
   border-radius: 8px; /* Rounded corners */
   cursor: pointer;
   text-align: center;
