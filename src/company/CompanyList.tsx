@@ -300,17 +300,17 @@ const CompanyList: React.FC = () => {
                 hoverable
                 size="small"
                 style={{ 
-                  height: '100%',
+                  height: '70%',  // Changed from 100% to 70%
                   borderRadius: '8px',
                   overflow: 'hidden',
                   transition: 'all 0.3s ease'
                 }}
               >
-                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                <div style={{ textAlign: 'center', padding: '8px 0' }}>
                   <Avatar 
                     src={company.logo} 
                     icon={!company.logo && <BankOutlined />}
-                    size={60}
+                    size={48}
                     style={{ 
                       border: '2px solid #1890ff',
                       padding: '2px',
@@ -318,8 +318,8 @@ const CompanyList: React.FC = () => {
                     }}
                   />
                   <Typography.Title level={5} style={{ 
-                    marginTop: '8px', 
-                    marginBottom: '4px',
+                    marginTop: '6px', 
+                    marginBottom: '2px',
                     fontSize: '14px'
                   }}>
                     {company.name}

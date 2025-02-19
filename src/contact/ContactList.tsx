@@ -243,7 +243,6 @@ const ContactList: React.FC = () => {
             placeholder="Search contacts..."
             prefix={<SearchOutlined />}
             style={{ width: 280 }}
-            onChange={(e) => setFilters({ q: e.target.value })}
           />
           <Segmented
             options={[
