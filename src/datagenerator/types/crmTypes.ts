@@ -71,6 +71,7 @@ interface BaseEntity<IdentifierType extends Identifier = Identifier>
     lastName: string;
     email: string;
     phone?: string;
+    position?: string;  // Added position property
     profileImage?: string; // URL to the contact's profile image
     companyId?: string;
     company?: Company;

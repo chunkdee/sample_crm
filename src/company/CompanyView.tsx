@@ -9,9 +9,43 @@ import LifeCycleStages from '../components/common/LifecyleStages';
 import type { ColumnsType } from 'antd/es/table';
 import { Table, Space, Typography, List } from 'antd';
 import TaskCard from '../task/Task';
+import styled from '@emotion/styled';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
+
+const ProfileCard = styled(Card)`
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 24px;
+`;
+
+const ProfileSection = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  text-align: left; // Added this to ensure left alignment
+`;
+
+const ProfileInfo = styled.div`
+  margin-left: 16px; // Reduced from 24px
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const CompanyDetails = styled(List)`
+  display: flex;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+
+  .ant-list-item {
+    margin: 0;
+    padding: 0;
+  }
+`;
 
 const CompanyView: React.FC = () => {
   const { record: company, isLoading } = useShowContext<Company>();
@@ -21,27 +55,32 @@ const CompanyView: React.FC = () => {
 
   return (
     <div>
-      <Row gutter={[24, 24]}>
+      <Row gutter={[3, 3]}>
         <Col span={24}>
-          <Card>
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <ProfileCard>
+            <ProfileSection>
               <Avatar 
-                size={80} 
+                size={64} 
                 src={company.logo}
-                icon={!company.logo && <UserOutlined />}
+                icon={!company.logo && <BankOutlined />} // Changed from UserOutlined to BankOutlined
                 style={{ 
                   backgroundColor: '#1890ff',
-                  padding: 4,
-                  border: '4px solid #e6f7ff'
+                  padding: 3,
+                  border: '3px solid #e6f7ff',
+                  flexShrink: 0
                 }}
               />
-              <Title level={4} style={{ marginTop: 16, marginBottom: 4 }}>
-              {`${company.name}`}
-              </Title>    
-              <Text type="secondary">{company.industry}</Text>
-            </div>
+              <ProfileInfo>
+                <Title level={4} style={{ margin: 0 }}>
+                {`${company.name}`}
+                </Title>    
+                <Text type="secondary" style={{ marginTop: 4 }}>
+                  {company.industry}
+                </Text>
+              </ProfileInfo>
+            </ProfileSection>
 
-            <List itemLayout="horizontal" split={false}>
+            <CompanyDetails itemLayout="horizontal" split={false}>
               <List.Item>
                 <Space>
                   <MailOutlined style={{ color: '#1890ff' }} />
@@ -55,8 +94,8 @@ const CompanyView: React.FC = () => {
                 </Space>
               </List.Item>
               
-            </List>
-          </Card>
+            </CompanyDetails>
+          </ProfileCard>
         </Col>
 
         <Col span={24}>
