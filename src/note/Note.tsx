@@ -27,12 +27,14 @@ const NoteCard: React.FC<NoteComponentProps> = ({ targetEntity, id }) => {
 
   const [newNote, setNewNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [itemsToShow, setItemsToShow] = useState(5);
 
-  const { data:userData,isPending:isLoadingCache} = useGetIdentity();
+  const { data: userData, isPending: isLoadingCache } = useGetIdentity();
 
-  const {data , isPending , error , refetch} = useGetManyReference<Note>('notes', {
+  const { data, isPending, error, refetch } = useGetManyReference<Note>('notes', {
     target: `${targetEntity}Id`,
     id: id,
+    pagination: { page: 1, perPage: itemsToShow },
     sort: { field: 'createdAt', order: 'DESC' }
   });
 
@@ -103,9 +105,7 @@ const NoteCard: React.FC<NoteComponentProps> = ({ targetEntity, id }) => {
       <div style={{ flex: 1, overflowY: 'auto' }}>
       <List
         itemLayout="horizontal"
-        dataSource={[...(data || [])].sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )}
+        dataSource={data || []}
         renderItem={(note, index) => (
           <List.Item
             style={{
@@ -149,6 +149,18 @@ const NoteCard: React.FC<NoteComponentProps> = ({ targetEntity, id }) => {
           </List.Item>
         )}
       />
+      
+      {data && data.length >= itemsToShow && (
+        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <Button 
+            type="text"
+            onClick={() => setItemsToShow(prev => prev + 10)}
+            loading={isPending}
+          >
+            View More
+          </Button>
+        </div>
+      )}
       </div> 
     </Card>
   );

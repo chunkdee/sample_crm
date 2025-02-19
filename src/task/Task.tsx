@@ -1,10 +1,13 @@
-import React, { useEffect } from 'react';
-import { Button, Card, Modal, Form, Input, DatePicker, List, Typography, Tag, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Card, Modal, Form, Input, DatePicker, List, Typography, Tag, message, Select } from 'antd';
 import { PlusOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { Task } from '../datagenerator/types/crmTypes';
+import { Task, TaskTitle } from '../datagenerator/types/crmTypes';
 import { Identifier, useCreate, useGetIdentity, useGetManyReference } from 'ra-core';
 
 const { Text, Paragraph } = Typography;
+
+// Replace hardcoded array with enum values
+const taskTitleOptions = Object.values(TaskTitle);
 
 interface TaskComponentProps {
   targetEntity: string;
@@ -19,16 +22,18 @@ const formatDate = (date: Date) => {
   }).format(new Date(date));
 };
 
-const TaskCard: React.FC<TaskComponentProps>  = ({ targetEntity, id }) => {
+const TaskCard: React.FC<TaskComponentProps> = ({ targetEntity, id }) => {
 
   const { data:userData,isPending:isLoadingCache} = useGetIdentity();
   const [isModalVisible, setIsModalVisible] = React.useState<boolean>(false);
   const [IsNewTask, setIsNewTask] = React.useState<boolean>(false);
   const [create, { isLoading }] = useCreate<Task>('tasks');
+  const [itemsToShow, setItemsToShow] = useState(5);
 
   const { data, isPending , refetch } = useGetManyReference<Task>('tasks', {
     target: `${targetEntity}Id`,
     id: id,
+    pagination: { page: 1, perPage: itemsToShow },
     sort: { field: 'createdAt', order: 'DESC' },
   });
 
@@ -117,9 +122,18 @@ const TaskCard: React.FC<TaskComponentProps>  = ({ targetEntity, id }) => {
             <Form.Item
               name="title"
               label="Title"
-              rules={[{ required: true, message: 'Please enter the title!' }]}
+              rules={[{ required: true, message: 'Please select the task type!' }]}
             >
-              <Input placeholder="Enter task title" />
+              <Select
+                placeholder="Select task type"
+                style={{ width: '100%' }}
+              >
+                {taskTitleOptions.map(title => (
+                  <Select.Option key={title} value={title}>
+                    {title}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Form.Item
               name="description"
@@ -171,7 +185,17 @@ const TaskCard: React.FC<TaskComponentProps>  = ({ targetEntity, id }) => {
         )}
       />
 
-      
+      {data && data.length >= itemsToShow && (
+        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <Button 
+            type="text"
+            onClick={() => setItemsToShow(prev => prev + 10)}
+            loading={isPending}
+          >
+            View More
+          </Button>
+        </div>
+      )}
 
     </Card>
   );

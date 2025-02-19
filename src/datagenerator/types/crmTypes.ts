@@ -3,7 +3,16 @@
 
 export type OpportunityStage =  'Prospecting' | 'Qualification' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
 
-export type TaskTitle =  'Email' | 'Call' | 'Meeting' | 'Follow-up' | 'Thank you' | 'None';
+export enum TaskTitle {
+  CALL = 'Call',
+  EMAIL = 'Email',
+  MEETING = 'Meeting',
+  FOLLOW_UP = 'Follow Up',
+  REVIEW = 'Review',
+  PROPOSAL = 'Proposal',
+  CONTRACT = 'Contract',
+  DEMO = 'Demo'
+}
 
 export enum DealStatus {
   New = 'New',
@@ -157,7 +166,7 @@ interface BaseEntity<IdentifierType extends Identifier = Identifier>
   
   // Task Entity
   interface Task extends BaseEntity {
-    title: string;
+    title: TaskTitle;
     description: string;
     dueDate: Date;
     completed: boolean;
