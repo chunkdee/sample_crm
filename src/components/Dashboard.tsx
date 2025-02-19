@@ -1,10 +1,15 @@
 import React from 'react';
-import { Card, Col, Row, Statistic, Timeline, Spin, Typography } from 'antd';
+import { Card, Col, Row, Statistic, Spin, Typography, Progress, Avatar, Tooltip as AntTooltip, Space, Select, Button } from 'antd';
 import { useGetList } from 'ra-core';
-import {
-  UserOutlined,
-  ShoppingCartOutlined,
-  BankOutlined
+import { 
+  BankOutlined, 
+  RiseOutlined, 
+  ApartmentOutlined,
+  ArrowUpOutlined,
+  GlobalOutlined,
+  FunnelPlotOutlined,
+  DollarOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import {
   Chart as ChartJS,
@@ -14,12 +19,16 @@ import {
   LineElement,
   BarElement,
   ArcElement,
-  Title as ChartTitle,
+  ChartItem,
   Tooltip,
   Legend,
+  ChartData,
+  ChartOptions
 } from 'chart.js';
-import { Line, Doughnut } from 'react-chartjs-2';
+import { Line, Doughnut, Bar } from 'react-chartjs-2';
+import { Company, Opportunity } from '../datagenerator/types/crmTypes';
 
+// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -27,40 +36,268 @@ ChartJS.register(
   LineElement,
   BarElement,
   ArcElement,
-  ChartTitle,
   Tooltip,
   Legend
 );
 
 const { Title, Text } = Typography;
 
+// Define chart option types
+type LineChartOptions = ChartOptions<'line'>;
+type DoughnutChartOptions = ChartOptions<'doughnut'>;
+type BarChartOptions = ChartOptions<'bar'>;
+
+// Update the styles object with more professional styling
+const styles = {
+  dashboardContainer: {
+    padding: '24px',
+    background: '#f7f9fc', // Lighter, more modern background
+    minHeight: '100vh'
+  },
+  headerCard: {
+    borderRadius: '12px',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
+    border: '1px solid rgba(0,0,0,0.06)',
+    transition: 'all 0.3s ease'
+  },
+  statCard: {
+    borderRadius: '12px',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
+    border: '1px solid rgba(0,0,0,0.06)',
+    height: '100%',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.06)'
+    }
+  },
+  chartCard: {
+    borderRadius: '12px',
+    boxShadow: '0 2px 16px rgba(0,0,0,0.05)',
+    border: '1px solid rgba(0,0,0,0.06)',
+    padding: '20px',
+    background: '#ffffff',
+    transition: 'all 0.3s ease'
+  },
+  companyCard: {
+    borderRadius: '12px',
+    boxShadow: '0 2px 16px rgba(0,0,0,0.05)',
+    border: '1px solid rgba(0,0,0,0.06)',
+    marginTop: '24px',
+    background: '#ffffff'
+  },
+  statValue: {
+    fontSize: '24px',
+    fontWeight: 600,
+    color: '#111827'
+  },
+  statTitle: {
+    fontSize: '14px',
+    color: '#6B7280',
+    fontWeight: 500
+  },
+  chartTitle: {
+    fontSize: '18px',
+    fontWeight: 600,
+    color: '#111827',
+    marginBottom: '4px'
+  },
+  chartSubtitle: {
+    fontSize: '14px',
+    color: '#6B7280'
+  },
+  gridItem: {
+    padding: '16px',
+    borderRadius: '8px',
+    border: '1px solid rgba(0,0,0,0.06)',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: '#f8fafc',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+    }
+  }
+};
+
+// Update the chart colors for a more professional look
+const CHART_COLORS = {
+  primary: '#2563eb', // Stronger blue
+  success: '#059669', // Rich green
+  warning: '#d97706', // Warm orange
+  purple: '#7c3aed', // Vibrant purple
+  error: '#dc2626', // Bright red
+  background: 'rgba(37, 99, 235, 0.05)',
+  gradientFrom: 'rgba(37, 99, 235, 0.12)',
+  gradientTo: 'rgba(37, 99, 235, 0.02)',
+  text: {
+    primary: '#111827',
+    secondary: '#6B7280'
+  }
+} as const;
+
 const Dashboard: React.FC = () => {
-  const {
-    data: customers,
-    isLoading: isLoadingCustomers
-  } = useGetList('customers');
+  const { data: companies, isLoading: isLoadingCompanies } = useGetList<Company>('companies');
+  const { data: opportunities, isLoading: isLoadingOpportunities } = useGetList<Opportunity>('opportunities');
 
-  const {
-    data: contacts,
-    isLoading: isLoadingContacts
-  } = useGetList('contacts');
+  const isLoading = isLoadingCompanies || isLoadingOpportunities;
 
-  const {
-    data: deals,
-    isLoading: isLoadingDeals
-  } = useGetList('deals');
+  // Enhanced revenue data visualization
+  const revenueData: ChartData<'line'> = React.useMemo(() => ({
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [{
+      label: 'Revenue',
+      data: (companies ?? []).reduce((acc, company) => {
+        const monthlyRevenue = company.revenue / 6; // Simulate monthly distribution
+        return acc.map(val => val + monthlyRevenue);
+      }, [0, 0, 0, 0, 0, 0]),
+      borderColor: CHART_COLORS.primary,
+      backgroundColor: (context) => {
+        const ctx = context.chart.ctx;
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, CHART_COLORS.gradientFrom);
+        gradient.addColorStop(1, CHART_COLORS.gradientTo);
+        return gradient;
+      },
+      tension: 0.4,
+      fill: true,
+    }]
+  }), [companies]);
 
-  const {
-    data: sales,
-    isLoading: isLoadingSales
-  } = useGetList('sales');
+  // Enhanced industry distribution data
+  const industryData: ChartData<'doughnut'> = React.useMemo(() => {
+    const industries = (companies ?? []).reduce((acc, company) => {
+      acc[company.industry] = (acc[company.industry] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
-  const {
-    data: companies,
-    isLoading: isLoadingCompanies
-  } = useGetList('companies');
+    return {
+      labels: Object.keys(industries),
+      datasets: [{
+        data: Object.values(industries),
+        backgroundColor: [
+          '#1890ff',
+          '#52c41a',
+          '#faad14',
+          '#722ed1',
+          '#f5222d',
+          '#13c2c2',
+          '#2f54eb'
+        ],
+        borderWidth: 2
+      }]
+    };
+  }, [companies]);
 
-  const isLoading = isLoadingCustomers || isLoadingContacts || isLoadingDeals || isLoadingSales || isLoadingCompanies;
+  // Calculate opportunity metrics
+  const opportunityMetrics = React.useMemo(() => {
+    const opps = opportunities ?? [];
+    return {
+      totalAmount: opps.reduce((sum, opp) => sum + opp.amount, 0),
+      totalCount: opps.length,
+      avgAmount: opps.length ? opps.reduce((sum, opp) => sum + opp.amount, 0) / opps.length : 0,
+      byStage: opps.reduce((acc, opp) => {
+        acc[opp.stage] = (acc[opp.stage] || 0) + opp.amount;
+        return acc;
+      }, {} as Record<string, number>)
+    };
+  }, [opportunities]);
+
+  // Opportunity Pipeline Chart (Line chart)
+  const opportunityData: ChartData<'line'> = React.useMemo(() => ({
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [{
+      label: 'Pipeline Value',
+      data: (opportunities ?? [])
+        .sort((a, b) => new Date(a.closeDate).getTime() - new Date(b.closeDate).getTime())
+        .reduce((acc, opp) => {
+          const month = new Date(opp.closeDate).getMonth();
+          if (month < 6) acc[month] += opp.amount;
+          return acc;
+        }, Array(6).fill(0)),
+      borderColor: CHART_COLORS.primary,
+      backgroundColor: (context) => {
+        const ctx = context.chart.ctx;
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, CHART_COLORS.gradientFrom);
+        gradient.addColorStop(1, CHART_COLORS.gradientTo);
+        return gradient;
+      },
+      tension: 0.4,
+      fill: true,
+    }]
+  }), [opportunities]);
+
+  // Opportunity Stage Distribution (Bar chart)
+  const stageDistributionData: ChartData<'bar'> = React.useMemo(() => ({
+    labels: ['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'],
+    datasets: [{
+      label: 'Amount',
+      data: ['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'].map(
+        stage => (opportunities ?? [])
+          .filter(opp => opp.stage === stage)
+          .reduce((sum, opp) => sum + opp.amount, 0)
+      ),
+      backgroundColor: [
+        CHART_COLORS.primary,
+        CHART_COLORS.success,
+        CHART_COLORS.warning,
+        CHART_COLORS.purple,
+        CHART_COLORS.error,
+        CHART_COLORS.background,
+      ],
+    }]
+  }), [opportunities]);
+
+  // Top Companies by Opportunity Value
+  const topCompaniesByOpportunity = React.useMemo(() => {
+    const companyOpportunities = (opportunities ?? []).reduce((acc, opp) => {
+      acc[opp.companyId] = (acc[opp.companyId] || 0) + opp.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return (companies ?? [])
+      .map(company => ({
+        ...company,
+        opportunityValue: companyOpportunities[company.id] || 0
+      }))
+      .sort((a, b) => b.opportunityValue - a.opportunityValue)
+      .slice(0, 5);
+  }, [companies, opportunities]);
+
+  // Chart options
+  const lineChartOptions: LineChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: false }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `$${value.toLocaleString()}`
+        }
+      }
+    }
+  };
+
+  const doughnutChartOptions: DoughnutChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = context.raw as number;
+            const total = context.dataset.data.reduce((a, b) => (a as number) + (b as number), 0) as number;
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${context.label}: ${value} (${percentage}%)`;
+          }
+        }
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -70,178 +307,288 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  const salesData = {
-    labels: (sales || []).slice(0, 6).map(sale =>
-      new Date(sale.date).toLocaleDateString()
-    ),
-    datasets: [{
-      label: 'Revenue',
-      data: (sales || []).slice(0, 6).map(sale => sale.amount),
-      borderColor: '#1890ff',
-      tension: 0.4,
-      fill: true,
-      backgroundColor: 'rgba(24, 144, 255, 0.1)',
-    }]
-  };
-
-  const dealsData = {
-    labels: ['New', 'Qualified', 'Proposal', 'Negotiation', 'Closed'],
-    datasets: [{
-      data: ['New', 'Qualified', 'Proposal', 'Negotiation', 'Closed'].map(
-        status => (deals || []).filter(deal => deal.status === status).length
-      ),
-      backgroundColor: [
-        '#1890ff',
-        '#52c41a',
-        '#faad14',
-        '#722ed1',
-        '#f5222d',
-      ],
-    }]
-  };
-
   return (
-    <div>
-      {/* Summary Cards */}
-      <Row gutter={16}>
-        <Col span={6}>
-          <Card>
+    <div style={styles.dashboardContainer}>
+      {/* Summary Stats */}
+      <Row gutter={[24, 24]}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card 
+            style={styles.statCard}
+            bodyStyle={{ padding: '24px' }}
+          >
             <Statistic
-              title={<Text strong style={{ fontSize: '1rem' }}>Total Customers</Text>}
-              value={customers?.length || 0}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={<Text strong style={{ fontSize: '1rem' }}>Total Revenue</Text>}
-              value={(sales ?? []).reduce((sum, sale) => sum + sale.amount, 0)}
+              title={
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  marginBottom: '16px' 
+                }}>
+                  <DollarOutlined style={{ fontSize: '20px', color: CHART_COLORS.primary }} />
+                  <span style={styles.statTitle}>Total Pipeline</span>
+                </div>
+              }
+              value={opportunityMetrics.totalAmount}
               prefix="$"
-              precision={2}
-              valueStyle={{ color: '#52c41a' }}
+              precision={0}
+              valueStyle={styles.statValue}
             />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={<Text strong style={{ fontSize: '1rem' }}>Active Deals</Text>}
-              value={(deals ?? []).length}
-              prefix={<ShoppingCartOutlined />}
-              valueStyle={{ color: '#faad14' }}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={<Text strong style={{ fontSize: '1rem' }}>Companies</Text>}
-              value={(companies ?? []).length}
-              prefix={<BankOutlined />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Charts Row */}
-      <Row gutter={16} style={{ marginTop: '24px' }}>
-        <Col span={16}>
-          <Card>
-            <Title level={4} style={{ marginBottom: 16 }}>Revenue Overview</Title>
-            <Text type="secondary" style={{ fontSize: '1rem' }}>
-              Monthly revenue breakdown
-            </Text>
-            <Line
-              data={salesData}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { position: 'top' },
-                  title: { display: false }
-                }
+            <Progress 
+              percent={85} 
+              showInfo={false} 
+              strokeColor={{
+                '0%': CHART_COLORS.primary,
+                '100%': CHART_COLORS.success
               }}
+              style={{ marginTop: '16px' }}
             />
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="Deals by Stage">
-            <Doughnut
-              data={dealsData}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { position: 'bottom' }
-                }
-              }}
+          <Card style={styles.statCard}>
+            <Statistic
+              title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BankOutlined />
+                  <span>Total Companies</span>
+                </div>
+              }
+              value={(companies ?? []).length}
+              prefix={<ArrowUpOutlined />}
+              valueStyle={{ color: CHART_COLORS.primary }}
+              suffix={
+                <small style={{ fontSize: '14px', color: CHART_COLORS.success }}>
+                  +12% ↑
+                </small>
+              }
             />
+            <Progress 
+              percent={75} 
+              showInfo={false} 
+              strokeColor={CHART_COLORS.primary} 
+              style={{ marginTop: '12px' }}
+            />
+          </Card>
+        </Col>
+        {/* Add more stats cards... */}
+      </Row>
+
+      {/* Charts Row */}
+      <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
+        <Col xs={24} lg={16}>
+          <Card 
+            style={styles.chartCard}
+            bodyStyle={{ padding: '0' }}
+          >
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '24px',
+              padding: '0 24px'
+            }}>
+              <div>
+                <Title level={4} style={styles.chartTitle}>Opportunity Pipeline</Title>
+                <Text type="secondary" style={styles.chartSubtitle}>
+                  Monthly opportunity distribution
+                </Text>
+              </div>
+              <Space>
+                <Select 
+                  defaultValue="6m" 
+                  style={{ width: 120 }}
+                  options={[
+                    { value: '6m', label: 'Last 6 months' },
+                    { value: '12m', label: 'Last 12 months' },
+                    { value: 'ytd', label: 'Year to date' }
+                  ]}
+                />
+                <AntTooltip title="View detailed report">
+                  <Button type="text" icon={<BarChartOutlined />} />
+                </AntTooltip>
+              </Space>
+            </div>
+            <div style={{ padding: '0 12px 24px' }}>
+              <Line data={opportunityData} options={lineChartOptions} />
+            </div>
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card style={styles.chartCard} title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FunnelPlotOutlined />
+              <span>Pipeline by Stage</span>
+            </div>
+          }>
+            <Bar data={stageDistributionData} options={{
+              responsive: true,
+              indexAxis: 'y',
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: (value) => `$${value.toLocaleString()}`
+                  }
+                }
+              }
+            } as BarChartOptions} />
           </Card>
         </Col>
       </Row>
 
-      {/* Recent Activity and Deals */}
-      <Row gutter={16} style={{ marginTop: '24px' }}>
-        <Col span={12}>
-          <Card title="Recent Deals">
-            <Timeline
-              items={(deals ?? []).slice(0, 5).map(deal => ({
-                color: deal.status === 'Closed Won' ? 'green' : 'blue',
-                children: (
-                  <>
-                    <Text strong style={{ fontSize: '1rem', display: 'block' }}>
-                      {deal.name}
-                    </Text>
-                    <Text type="secondary" style={{ fontSize: '0.9rem' }}>
-                      ${deal.value.toLocaleString()} - {deal.status}
-                    </Text>
-                  </>
-                )
-              }))}
-            />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card title="Top Companies">
-            {(companies ?? []).slice(0, 5).map(company => (
-              <Card.Grid
+      {/* Top Companies Section with enhanced styling */}
+      <Card 
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <GlobalOutlined />
+            <span>Top Performing Companies</span>
+          </div>
+        }
+        style={styles.companyCard}
+      >
+        <Row gutter={[16, 16]}>
+          {(companies ?? [])
+            .sort((a, b) => (b.revenue || 0) - (a.revenue || 0))
+            .slice(0, 5)
+            .map((company, index) => (
+              <Col span={24} key={company.id}>
+                <Card.Grid 
+                  style={{
+                    ...styles.gridItem,
+                    width: '100%',
+                    backgroundColor: '#ffffff'
+                  }}
+                >
+                  <Row justify="space-between" align="middle">
+                    <Col flex="auto">
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '16px' 
+                      }}>
+                        <Avatar 
+                          size={48} 
+                          style={{ 
+                            backgroundColor: CHART_COLORS.background,
+                            color: CHART_COLORS.primary,
+                            fontSize: '20px',
+                            fontWeight: 600
+                          }}
+                        >
+                          {company.name.charAt(0)}
+                        </Avatar>
+                        <div>
+                          <Text strong style={{ 
+                            fontSize: '16px', 
+                            display: 'block',
+                            color: CHART_COLORS.text.primary 
+                          }}>
+                            {company.name}
+                          </Text>
+                          <Text style={{ 
+                            fontSize: '14px',
+                            color: CHART_COLORS.text.secondary 
+                          }}>
+                            {company.industry}
+                          </Text>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col>
+                      <Statistic
+                        value={company.revenue}
+                        prefix="$"
+                        precision={0}
+                        valueStyle={{
+                          fontSize: '18px',
+                          fontWeight: 500,
+                          color: CHART_COLORS.primary
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                </Card.Grid>
+              </Col>
+            ))}
+        </Row>
+      </Card>
+
+      {/* Top Companies by Opportunity Value Section */}
+      <Card 
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <GlobalOutlined />
+            <span>Top Companies by Opportunity Value</span>
+          </div>
+        }
+        style={styles.companyCard}
+      >
+        <Row gutter={[16, 16]}>
+          {topCompaniesByOpportunity.map((company) => (
+            <Col span={24} key={company.id}>
+              <Card.Grid 
                 style={{
+                  ...styles.gridItem,
                   width: '100%',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  marginBottom: '8px'
+                  backgroundColor: '#ffffff'
                 }}
-                key={company.id}
               >
                 <Row justify="space-between" align="middle">
-                  <Col>
-                    <Text strong style={{ fontSize: '1.1rem', display: 'block' }}>
-                      {company.name}
-                    </Text>
-                    <Text type="secondary" style={{ fontSize: '0.9rem' }}>
-                      {company.industry}
-                    </Text>
+                  <Col flex="auto">
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '16px' 
+                    }}>
+                      <Avatar 
+                        size={48} 
+                        style={{ 
+                          backgroundColor: CHART_COLORS.background,
+                          color: CHART_COLORS.primary,
+                          fontSize: '20px',
+                          fontWeight: 600
+                        }}
+                      >
+                        {company.name.charAt(0)}
+                      </Avatar>
+                      <div>
+                        <Text strong style={{ 
+                          fontSize: '16px', 
+                          display: 'block',
+                          color: CHART_COLORS.text.primary 
+                        }}>
+                          {company.name}
+                        </Text>
+                        <Text style={{ 
+                          fontSize: '14px',
+                          color: CHART_COLORS.text.secondary 
+                        }}>
+                          {company.industry}
+                        </Text>
+                      </div>
+                    </div>
                   </Col>
                   <Col>
                     <Statistic
-                      value={company.revenue}
+                      value={company.opportunityValue}
                       prefix="$"
                       precision={0}
                       valueStyle={{
-                        fontSize: '1.2rem',
-                        fontWeight: 500,
-                        color: '#1890ff'
+                        fontSize: '18px',
+                        fontWeight: 600,
+                        color: CHART_COLORS.primary
                       }}
                     />
                   </Col>
                 </Row>
               </Card.Grid>
-            ))}
-          </Card>
-        </Col>
-      </Row>
+            </Col>
+          ))}
+        </Row>
+      </Card>
     </div>
   );
 };
