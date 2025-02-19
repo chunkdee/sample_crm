@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Card, Row, Col, message, Input, Form, Tooltip, Space, Avatar, Typography, List, Popconfirm } from 'antd';
+import { Table, Button, Card, Row, Col, message, Input, Form, Tooltip, Space, Avatar, Typography, List, Popconfirm, Spin, Segmented } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, UnorderedListOutlined, AppstoreOutlined, UserOutlined, BankOutlined, TeamOutlined, EnvironmentOutlined, DollarOutlined } from '@ant-design/icons';
 import { EditBase, Identifier, useListContext } from 'ra-core';
@@ -12,9 +12,33 @@ import ViewButton from '../components/common/ViewButton';
 import EditButton from '../components/common/EditButton';
 import DeleteButton from '../components/common/DeleteButton';
 import ReferenceManyResource from '../components/common/ReferenceManyResource';
+import styled from 'styled-components';
 
 const { Text } = Typography;
 
+const StyledCard = styled(Card)`
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  
+  .ant-card-body {
+    padding: 24px;
+  }
+`;
+
+const HeaderSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 0 24px;
+  border-bottom: 1px solid #f0f0f0;
+`;
+
+const SearchSection = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+`;
 
 const ContactRelatedAvatar: React.FC<{ data: Contact[], total?:number }> = ({ data, total }) => {
   return (
@@ -211,14 +235,37 @@ const CompanyList: React.FC = () => {
   }
 
   return (
-    <Card>
-      <div style={{
-        marginBottom: 16,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <Space size={16}>
+    <StyledCard>
+      <HeaderSection>
+        <div>
+          <Typography.Title level={4} style={{ marginBottom: '8px' }}>Companies</Typography.Title>
+          <Typography.Text type="secondary">Manage your companies and their information</Typography.Text>
+        </div>
+        <SearchSection>
+          <Input.Search
+            placeholder="Search companies..."
+            prefix={<SearchOutlined />}
+            style={{ width: 280 }}
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setFilters({ q: e.target.value });
+            }}
+          />
+          <Segmented
+            options={[
+              {
+                value: 'table',
+                icon: <UnorderedListOutlined />
+              },
+              {
+                value: 'card',
+                icon: <AppstoreOutlined />
+              }
+            ]}
+            value={viewMode}
+            onChange={(value) => setViewMode(value as 'table' | 'card')}
+          />
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -226,40 +273,13 @@ const CompanyList: React.FC = () => {
           >
             Add Company
           </Button>
-          <Input
-            placeholder="Search companies..."
-            prefix={<SearchOutlined />}
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-              setFilters({ q: e.target.value });
-            }}
-            style={{ width: 200 }}
-          />
-        </Space>
-
-        <ViewToggle>
-          <Tooltip title="Table View">
-            <div
-              className={`view-button ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => setViewMode('table')}
-            >
-              <UnorderedListOutlined />
-            </div>
-          </Tooltip>
-          <Tooltip title="Card View">
-            <div
-              className={`view-button ${viewMode === 'card' ? 'active' : ''}`}
-              onClick={() => setViewMode('card')}
-            >
-              <AppstoreOutlined />
-            </div>
-          </Tooltip>
-        </ViewToggle>
-      </div>
+        </SearchSection>
+      </HeaderSection>
 
       {isLoading ? (
-        <div>Loading...</div>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
       ) : viewMode === 'table' ? (
         <Table
           columns={columns}
@@ -357,7 +377,7 @@ const CompanyList: React.FC = () => {
           />
         </EditBase>
       )}
-    </Card>
+    </StyledCard>
   );
 };
 
