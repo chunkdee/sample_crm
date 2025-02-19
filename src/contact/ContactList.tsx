@@ -130,7 +130,6 @@ const CardView: React.FC<{ contact: Contact; handleDelete: (id: Identifier) => v
 const ContactList: React.FC = () => {
   const { data: contacts, isLoading } = useListContext<Contact>();
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
-  const [filters, setFilters] = useState<{ q: string }>({ q: '' });
 
   // Add view mode toggle
   const handleViewModeChange = (value: 'table' | 'card') => {
