@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import { Button, Tooltip, Popconfirm, message } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { CanAccess, useDelete, Identifier } from 'ra-core';
+import { ActionButton } from '../styles/ActionButtons';
 
 interface DeleteButtonProps {
   resource: string;
   recordId: Identifier;
   label?: string;
+  className?: string;
 }
 
 const DeleteButton: React.FC<DeleteButtonProps> = ({ 
   resource, 
   recordId,
-  label = 'Delete'
+  label = 'Delete',
+  className
 }) => {
   const [deleteOne] = useDelete();
   const [loading, setLoading] = useState(false);
@@ -38,12 +41,15 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({
         placement="left"
       >
         <Tooltip title={label}>
+          <ActionButton>
           <Button
             type="text"
             danger
             icon={<DeleteOutlined />}
             loading={loading}
+            className={className}
           />
+          </ActionButton>
         </Tooltip>
       </Popconfirm>
     </CanAccess>

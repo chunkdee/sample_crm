@@ -7,6 +7,25 @@ export const ActionButton = styled(Button)`
   padding: 8px;
   border-radius: 6px;
   transition: all 0.3s;
+  padding: 4px 8px;
+  height: 28px;
+  font-size: 12px;
+
+   &.view-button {
+    color: #1890ff;
+    border-color: #1890ff;
+  }
+  
+  &.edit-button {
+    color: #52c41a;
+    border-color: #52c41a;
+  }
+  
+  &.delete-button {
+    color: #ff4d4f;
+    border-color: #ff4d4f;
+  }
+  
 
   &:hover {
     background: ${props => props.danger ? 'rgba(255, 77, 79, 0.1)' : 'rgba(24, 144, 255, 0.1)'};
@@ -24,3 +43,4 @@ export const ActionGroup = styled.div`
   justify-content: flex-end;
   padding: 8px;
 `;
+
