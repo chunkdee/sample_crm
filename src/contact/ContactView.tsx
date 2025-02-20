@@ -48,7 +48,7 @@ const ContactView: React.FC = () => {
 
   return (
   <div>
-    <Row gutter={[24, 24]}>
+    <Row gutter={[3, 3]}>
     <Col span={24}>
       <ProfileCard>
         <ProfileSection>
@@ -103,11 +103,6 @@ const ContactView: React.FC = () => {
       </ProfileCard>
     </Col>
 
-    <Col span={24}>
-    <Card title="Life Cycle Stages :">
-         <LifeCycleStages DealStage="Negotiation"></LifeCycleStages>
-    </Card>
-    </Col>
     <Col span={16}>
           <NoteCard 
             targetEntity="contact"

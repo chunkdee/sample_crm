@@ -1,34 +1,20 @@
 import React, { useState } from 'react';
 import { 
-  Table, 
-  Card, 
   Row, 
   Col, 
-  message, 
   Input, 
-  Tooltip, 
   Space, 
   Avatar, 
   Typography, 
   List,
   Tag,
-  Dropdown,
-  Button,
   Segmented
 } from 'antd';
 import { 
   SearchOutlined, 
   UserOutlined, 
-  BankOutlined, 
-  PhoneOutlined,
-  MailOutlined,
-  EllipsisOutlined,
-  FilterOutlined,
   TableOutlined,
-  AppstoreOutlined,
-  EyeOutlined,
-  EditOutlined,
-  DeleteOutlined
+  AppstoreOutlined
 } from '@ant-design/icons';
 import { Identifier, useListContext } from 'ra-core';
 import { Contact, Company } from '../datagenerator/types/crmTypes';
@@ -38,46 +24,20 @@ import EditButton from '../components/common/EditButton';
 import CreateButton from '../components/common/CreateButton';
 import DeleteButton from '../components/common/DeleteButton';
 import ReferenceResource from '../components/common/ReferenceResource';
-import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
+import {
+  StyledCard,
+  ContactCard,
+  HeaderSection,
+  SearchSection,
+  StyledTable,
+  ContactAvatar,
+  ContactInfo
+} from './ContactStyle';
+
 const { Text, Title } = Typography;
 
-// Professional styling
-const StyledCard = styled(Card)`
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  
-  .ant-card-body {
-    padding: 24px;
-  }
-`;
-
-const ContactCard = styled(Card)`
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  border: 1px solid #f0f0f0;
-  
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
-  }
-`;
-
-const HeaderSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding: 0 0 24px;
-  border-bottom: 1px solid #f0f0f0;
-`;
-
-const SearchSection = styled.div`
-  display: flex;
-  gap: 16px;
-  align-items: center;
-`;
-
-const CardView: React.FC<{ contact: Contact; handleDelete: (id: Identifier) => void }> = ({ contact, handleDelete }) => (
+const CardView: React.FC<{ contact: Contact }> = ({ contact }) => (
   <ContactCard
     actions={[
       <ViewButton key="view" resource="contacts" recordId={contact.id} />,
@@ -113,14 +73,7 @@ const CardView: React.FC<{ contact: Contact; handleDelete: (id: Identifier) => v
     <List size="small" split={false}>
       <List.Item>
         <Space>
-          <MailOutlined style={{ color: '#1890ff' }} />
           <Text copyable>{contact.email}</Text>
-        </Space>
-      </List.Item>
-      <List.Item>
-        <Space>
-          <PhoneOutlined style={{ color: '#52c41a' }} />
-          <Text>{contact.phone}</Text>
         </Space>
       </List.Item>
     </List>
@@ -128,108 +81,74 @@ const CardView: React.FC<{ contact: Contact; handleDelete: (id: Identifier) => v
 );
 
 const ContactList: React.FC = () => {
+  const navigate = useNavigate();
   const { data: contacts, isLoading } = useListContext<Contact>();
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
 
-  // Add view mode toggle
   const handleViewModeChange = (value: 'table' | 'card') => {
     setViewMode(value);
   };
 
+  const handleRowClick = (record: Contact) => {
+    navigate(`/contacts/${record.id}/show`);
+  };
+
   const columns: ColumnsType<Contact> = [
     {
-      title: 'Name',
+      title: 'Contact',
       dataIndex: 'name',
       key: 'name',
       sorter: (a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`),
       render: (_, record: Contact) => (
-        <Space>
-          <Avatar 
-            src={record.profileImage} 
-            icon={!record.profileImage && <UserOutlined />}
-            style={{ 
-              border: '2px solid #f0f0f0',
-              backgroundColor: record.profileImage ? 'transparent' : '#1890ff'
-            }}
-          />
-          <Text strong>{`${record.firstName} ${record.lastName}`}</Text>
-        </Space>
+        <ContactInfo>
+          <div className="contact-details">
+            <ContactAvatar 
+              src={record.profileImage} 
+              icon={!record.profileImage && <UserOutlined />}
+              size={40}
+              style={{ 
+                backgroundColor: record.profileImage ? 'transparent' : '#1890ff',
+                border: '2px solid #f0f0f0'
+              }}
+            />
+            <div className="name-section">
+              <Text strong style={{ fontSize: '14px' }}>
+                {`${record.firstName} ${record.lastName}`}
+              </Text>
+            </div>
+          </div>
+          <div className="company-section">
+            <ReferenceResource<Company> resource="companies" id={record.companyId || 0}>
+              {(company) => (
+                <Space size={4}>
+                  {record.position && (
+                    <>
+                      <Text type="secondary" style={{ fontSize: '13px' }}>
+                        {record.position}
+                      </Text>
+                      <Text type="secondary" style={{ fontSize: '13px' }}>at</Text>
+                    </>
+                  )}
+                  <Text style={{ fontSize: '13px' }}>{company.name}</Text>
+                  <Tag 
+                    color="blue" 
+                    style={{ 
+                      fontSize: '12px',
+                      padding: '0 8px',
+                      borderRadius: '4px'
+                    }}
+                  >
+                    {company.industry}
+                  </Tag>
+                </Space>
+              )}
+            </ReferenceResource>
+          </div>
+        </ContactInfo>
       ),
-      width: '25%'
-    },
-    {
-      title: 'Company',
-      key: 'company',
-      width: '20%',
-      render: (_, record: Contact) => (
-        <ReferenceResource<Company> resource="companies" id={record.companyId || 0}>
-          {(company) => (
-            <Space>
-              <BankOutlined style={{ color: '#1890ff' }} />
-              <Text>{company.name}</Text>
-            </Space>
-          )}
-        </ReferenceResource>
-      )
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      width: '20%',
-      render: (email: string) => (
-        <Space>
-          <Text copyable>{email}</Text>
-        </Space>
-      )
-    },
-    {
-      title: 'Phone',
-      dataIndex: 'phone',
-      key: 'phone',
-      width: '15%',
-      render: (phone: string) => (
-        <Space>
-          <Text>{phone}</Text>
-        </Space>
-      )
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: '15%',
-      render: (_, record: Contact) => (
-        <Space size={4}>
-          <Tooltip title="View Contact">
-            <ViewButton 
-              resource="contacts" 
-              recordId={record.id}
-
-            >
-            </ViewButton>
-          </Tooltip>
-          <Tooltip title="Edit Contact">
-            <EditButton 
-              resource="contacts" 
-              recordId={record.id}
-            
-            />
-          </Tooltip>
-          <Tooltip title="Delete Contact">
-            <DeleteButton 
-              resource="contacts" 
-              recordId={record.id}
-            
-            />
-          </Tooltip>
-        </Space>
-      )
+      width: '70%'
     }
   ];
-
-  const handleDelete = (id: Identifier): void => {
-    message.success('Contact deleted successfully');
-  };
 
   return (
     <StyledCard>
@@ -263,11 +182,14 @@ const ContactList: React.FC = () => {
       </HeaderSection>
 
       {viewMode === 'table' ? (
-        <Table<Contact>
+        <StyledTable
           columns={columns}
           dataSource={contacts}
           loading={isLoading}
           rowKey="id"
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+          })}
           pagination={{
             showSizeChanger: true,
             showTotal: (total) => `Total ${total} contacts`,
@@ -280,7 +202,7 @@ const ContactList: React.FC = () => {
         <Row gutter={[16, 16]}>
           {contacts?.map(contact => (
             <Col xs={24} sm={12} md={8} lg={6} key={contact.id}>
-              <CardView contact={contact} handleDelete={handleDelete} />
+              <CardView contact={contact} />
             </Col>
           ))}
         </Row>

@@ -47,6 +47,39 @@ const CompanyDetails = styled(List)`
   }
 `;
 
+const StyledCard = styled(Card)`
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  
+  .ant-tabs-nav {
+    margin-bottom: 16px;
+  }
+
+  .ant-tabs-tab {
+    padding: 12px 16px;
+    margin: 0 16px 0 0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #1890ff;
+    }
+  }
+
+  .ant-tabs-tab-active {
+    .ant-tabs-tab-btn {
+      color: #1890ff;
+      font-weight: 500;
+    }
+  }
+
+  .ant-tabs-ink-bar {
+    background: #1890ff;
+    height: 3px;
+    border-radius: 3px;
+  }
+`;
+
 const CompanyView: React.FC = () => {
   const { record: company, isLoading } = useShowContext<Company>();
 
@@ -99,7 +132,7 @@ const CompanyView: React.FC = () => {
         </Col>
 
         <Col span={24}>
-          <Card>
+          <StyledCard>
             <Tabs defaultActiveKey="1">
               <TabPane tab="Contacts" key="1">
                 <CompanyContactsTable companyId={company.id} />
@@ -123,7 +156,7 @@ const CompanyView: React.FC = () => {
                 />
               </TabPane>
             </Tabs>
-          </Card>
+          </StyledCard>
         </Col>
       </Row>
     </div>

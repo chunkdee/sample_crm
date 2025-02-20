@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Modal, Form, Input, DatePicker, List, Typography, Tag, message, Select } from 'antd';
 import { PlusOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { Task, TaskTitle } from '../datagenerator/types/crmTypes';
+import { Task, TaskTitle as titleOptions } from '../datagenerator/types/crmTypes';
 import { Identifier, useCreate, useGetIdentity, useGetManyReference } from 'ra-core';
+import styled from '@emotion/styled';
 
 const { Text, Paragraph } = Typography;
 
 // Replace hardcoded array with enum values
-const taskTitleOptions = Object.values(TaskTitle);
+const taskTitleOptions = Object.values(titleOptions);
 
 interface TaskComponentProps {
   targetEntity: string;
@@ -21,6 +22,90 @@ const formatDate = (date: Date) => {
     day: 'numeric'
   }).format(new Date(date));
 };
+
+const TaskWrapper = styled(Card)`
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  
+  .ant-card-head {
+    min-height: 48px;
+    padding: 0 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ant-card-head-title {
+    padding: 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .ant-card-body {
+    padding: 16px;
+  }
+`;
+
+const TaskList = styled(List)`
+  .ant-list-item {
+    padding: 8px 0; // Reduced from 12px
+    border-bottom: 1px solid #f5f5f5;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #fafafa;
+    }
+  }
+`;
+
+const TaskHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+
+const TaskItem = styled.div`
+  width: 100%;
+`;
+
+const TaskTitle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px; // Reduced from 8px
+`;
+
+const TaskDescription = styled(Paragraph)`
+  margin-bottom: 4px;
+  color: #666;
+  font-size: 13px; // Reverted from 12px
+  line-height: 1.5;
+`;
+
+const TaskDate = styled(Text)`
+  font-size: 12px; // Reverted from 11px
+  color: #8c8c8c;
+`;
+
+const AddTaskButton = styled(Button)`
+  margin-bottom: 16px;
+  font-size: 13px;
+  height: 32px;
+  padding: 4px 12px;
+  
+  .anticon {
+    font-size: 12px;
+  }
+  
+  &.ant-btn-primary {
+    background: #1890ff;
+    box-shadow: 0 2px 4px rgba(24,144,255,0.1);
+    
+    &:hover {
+      background: #40a9ff;
+      transform: translateY(-1px);
+    }
+  }
+`;
 
 const TaskCard: React.FC<TaskComponentProps> = ({ targetEntity, id }) => {
 
@@ -79,19 +164,17 @@ const TaskCard: React.FC<TaskComponentProps> = ({ targetEntity, id }) => {
   }
 
   return (
-     <Card title="Tasks"  style={{
-     
-         borderRadius: '8px',
-         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-         marginBottom: '16px',
-     
-      }}
-      >
-
-      <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-        Add Task
-      </Button>
-     
+     <TaskWrapper title="Tasks">
+      <TaskHeader>
+        <AddTaskButton
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showModal}
+          size="small"
+        >
+          Add Task
+        </AddTaskButton>
+      </TaskHeader>
 
       <Modal
         title="Create New Task"
@@ -158,29 +241,31 @@ const TaskCard: React.FC<TaskComponentProps> = ({ targetEntity, id }) => {
         </Card>
       </Modal>
 
-      <List
+      <TaskList
         loading={isPending}
         dataSource={data}
         renderItem={(task: Task) => (
-          <List.Item key={task.id} style={{ padding: '16px', borderBottom: '1px solid #e8e8e8' }}>
-            <div style={{ width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <Text strong>{task.title}</Text>
+          <List.Item key={task.id}>
+            <TaskItem>
+              <TaskTitle>
+                <Text strong style={{ fontSize: '14px' }}>{task.title}</Text> {/* Reverted from 13px */}
                 {task.completed ? (
-                  <Tag icon={<CheckCircleOutlined />} color="success">
+                  <Tag icon={<CheckCircleOutlined />} color="success" style={{ margin: 0, fontSize: '12px', padding: '0 6px' }}> {/* Reverted from 11px */}
                     Completed
                   </Tag>
                 ) : (
-                  <Tag icon={<ClockCircleOutlined />} color="processing">
+                  <Tag icon={<ClockCircleOutlined />} color="processing" style={{ margin: 0, fontSize: '12px', padding: '0 6px' }}> {/* Reverted from 11px */}
                     In Progress
                   </Tag>
                 )}
-              </div>
-              <Paragraph ellipsis={{ rows: 2 }}>{task.description}</Paragraph>
-              <Text type="secondary">
-                Due Date: {formatDate(task.dueDate)}
-              </Text>
-            </div>
+              </TaskTitle>
+              <TaskDescription ellipsis={{ rows: 2 }}>
+                {task.description}
+              </TaskDescription>
+              <TaskDate type="secondary">
+                Due: {formatDate(task.dueDate)}
+              </TaskDate>
+            </TaskItem>
           </List.Item>
         )}
       />
@@ -197,7 +282,7 @@ const TaskCard: React.FC<TaskComponentProps> = ({ targetEntity, id }) => {
         </div>
       )}
 
-    </Card>
+    </TaskWrapper>
   );
 };
 
