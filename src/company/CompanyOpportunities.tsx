@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Space, Typography, Table, Tag, Modal, Card, Row, Col, Statistic, Timeline, List, Avatar } from 'antd';
+import { Space, Typography, Table, Tag, Modal, Card, Row, Col, Statistic, Timeline, List, Avatar, Divider } from 'antd';
 import { DollarOutlined, CalendarOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useGetManyReference, Identifier } from 'ra-core';
 import { Opportunity } from '../datagenerator/types/crmTypes';
@@ -8,21 +8,49 @@ import styled from '@emotion/styled';
 import NoteCard from '../note/Note';
 import { Contact } from '../datagenerator/types/crmTypes';
 import ReferenceManyResource from '../components/common/ReferenceManyResource';
-
+import LifeCycleStages from '../components/common/LifecyleStages';
 
 const { Text, Title } = Typography;
 
 const DetailsCard = styled(Card)`
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 `;
 
-const StageTimeline = styled(Timeline)`
-  padding: 16px;
-  
-  .ant-timeline-item-tail {
-    border-left: 2px solid #e8e8e8;
+const ContactChip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 4px 12px;
+  margin: 0 8px 8px 0;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #e6f7ff;
+  }
+
+  .ant-avatar {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    border: 1px solid #e8e8e8;
+  }
+
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    
+    .contact-name {
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    
+    .contact-position {
+      font-size: 12px;
+      color: #8c8c8c;
+    }
   }
 `;
 
@@ -132,11 +160,16 @@ const CompanyOpportunitiesTable: React.FC<{ companyId: Identifier }> = ({ compan
         onCancel={() => setIsModalVisible(false)}
         width={1000}
         footer={null}
-        bodyStyle={{ padding: '24px' }}
+        style={{ top: 20 }}
+        bodyStyle={{ 
+          padding: '24px',
+          maxHeight: 'calc(100vh - 100px)',
+          overflow: 'auto'
+        }}
       >
         {selectedOpportunity && (
           <>
-            <Row gutter={[24, 24]}>
+            <Row gutter={[4, 4]}>
               <Col span={24}>
                 <DetailsCard>
                   <Row align="middle" justify="space-between">
@@ -159,7 +192,7 @@ const CompanyOpportunitiesTable: React.FC<{ companyId: Identifier }> = ({ compan
                 </DetailsCard>
               </Col>
 
-              <Col span={16}>
+              <Col span={24}>
                 <DetailsCard title="Opportunity Details">
                   <Row gutter={[24, 16]}>
                     <Col span={12}>
@@ -187,49 +220,45 @@ const CompanyOpportunitiesTable: React.FC<{ companyId: Identifier }> = ({ compan
                         <Text>{selectedOpportunity.description}</Text>
                       </Space>
                     </Col>
+                    <Col span={24}>
+                      <Divider style={{ margin: '12px 0' }} />
+                      <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                        <Text type="secondary">Related Contacts</Text>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '8px' }}>
+                          <ReferenceManyResource<Contact>
+                            resource="contacts"
+                            id={selectedOpportunity.id}
+                            target='opportunities'
+                          >
+                            {(contacts) => contacts.map(contact => (
+                              <ContactChip key={contact.id}>
+                                <Avatar 
+                                  size="small" 
+                                  icon={<UserOutlined />} 
+                                  src={contact.profileImage}
+                                />
+                                <div className="contact-info">
+                                  <Text className="contact-name">
+                                    {`${contact.firstName} ${contact.lastName}`}
+                                  </Text>
+                                  <Text className="contact-position">
+                                    {contact.position}
+                                  </Text>
+                                </div>
+                              </ContactChip>
+                            ))}
+                          </ReferenceManyResource>
+                        </div>
+                      </Space>
+                    </Col>
                   </Row>
                 </DetailsCard>
 
-                <DetailsCard title="Stage History">
-                  <StageTimeline>
-                    {['Prospecting', 'Qualification', 'Proposal', 'Negotiation'].map((stage) => (
-                      <Timeline.Item 
-                        key={stage}
-                        color={stage === selectedOpportunity.stage ? 'blue' : 'gray'}
-                        dot={stage === selectedOpportunity.stage ? 
-                          <ClockCircleOutlined style={{ fontSize: '16px' }} /> : null}
-                      >
-                        <Text strong={stage === selectedOpportunity.stage}>{stage}</Text>
-                      </Timeline.Item>
-                    ))}
-                  </StageTimeline>
-                </DetailsCard>
-              </Col>
-
-              <Col span={8}>
-              <ReferenceManyResource<Contact>
-      resource="contacts"
-      id={selectedOpportunity.id}
-      target='contactId'
-    >
-      {(contacts) => (
-         	<DetailsCard title="Related Contacts">
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={contacts}
-                    renderItem={(contact: Contact) => (
-                      <List.Item>
-                        <List.Item.Meta
-                          avatar={<Avatar icon={<UserOutlined />} src={contact.profileImage} />}
-                          title={`${contact.firstName} ${contact.lastName}`}
-                          description={contact.position}
-                        />
-                      </List.Item>
-                    )}
+                <DetailsCard title="Pipeline Stage">
+                  <LifeCycleStages 
+                    opportunity={selectedOpportunity}
                   />
                 </DetailsCard>
-      )}
-    </ReferenceManyResource>
 
                 <DetailsCard>
                   <NoteCard

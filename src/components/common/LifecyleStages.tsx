@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { FileTextOutlined, PhoneOutlined, StarOutlined, CheckCircleOutlined, ShakeOutlined, TrophyOutlined } from "@ant-design/icons";
 import styled, { keyframes } from "styled-components";
-import {OpportunityStage} from "../../datagenerator/types/crmTypes";
+import { OpportunityStage, Opportunity } from "../../datagenerator/types/crmTypes";
+import { useUpdate } from 'ra-core';
 
-// Define the prop types
+// Update prop types to receive full Opportunity record
 interface SalesPipelineProps {
-    DealStage: OpportunityStage;
-  }
+  opportunity: Opportunity;
+}
 
-const LifeCycleStages : React.FC<SalesPipelineProps> =  ({ DealStage }) => {
-  const [currentStage, setCurrentStage] = useState<OpportunityStage>(DealStage); // State to track the current stage
+const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity }) => {
+  const [currentStage, setCurrentStage] = useState<OpportunityStage>(opportunity.stage);
+  const [update] = useUpdate();
 
   const stages: { id: OpportunityStage; label: string; icon: JSX.Element }[] = [
     { id: "Prospecting", label: "Prospecting", icon: <FileTextOutlined /> },
@@ -19,6 +21,26 @@ const LifeCycleStages : React.FC<SalesPipelineProps> =  ({ DealStage }) => {
     { id: "Closed Won", label: "Closed Won", icon: <ShakeOutlined /> },
     { id: "Closed Lost", label: "Closed Lost", icon: <TrophyOutlined /> },
   ];
+
+  // Handle stage click with data update
+  const handleStageClick = async (stageId: OpportunityStage) => {
+    try {
+      await update(
+        'opportunities',
+        { 
+          id: opportunity.id,
+          data: { 
+            ...opportunity,
+            stage: stageId,
+            lastModified: new Date()
+          }
+        }
+      );
+      setCurrentStage(stageId);
+    } catch (error) {
+      console.error('Failed to update opportunity stage:', error);
+    }
+  };
 
   // Determine the color for each stage based on the currentStage
   const getStageColor = (stageId: OpportunityStage): string => {
@@ -44,11 +66,6 @@ const LifeCycleStages : React.FC<SalesPipelineProps> =  ({ DealStage }) => {
     return ""; // Default color
   };
 
-  // Handle stage click
-  const handleStageClick = (stageId: OpportunityStage) => {
-    setCurrentStage(stageId); // Update the current stage
-  };
-
   return (
     <PipelineContainer>
       {stages.map((stage) => (
@@ -63,8 +80,6 @@ const LifeCycleStages : React.FC<SalesPipelineProps> =  ({ DealStage }) => {
     </PipelineContainer>
   );
 };
-
-export default LifeCycleStages;
 
 // Styled Components
 const fadeIn = keyframes`
@@ -166,3 +181,5 @@ const Stage = styled.div`
     animation: ${colorChange} 0.5s ease-in-out; /* Color change animation */
   }
 `;
+
+export default LifeCycleStages;
