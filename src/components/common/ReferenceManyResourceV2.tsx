@@ -11,15 +11,15 @@ interface ReferenceResourceProps<T extends RaRecord = RaRecord> {
 }
 
 function ReferenceManyResourceV2<T extends RaRecord>({ resource, id, target, children }: ReferenceResourceProps<T>) {
-  const { data, isLoading , total} = useGetManyReference<T>(
+  const referenceRespponse   = useGetManyReference<T>(
     `${resource}`,
      { target, id },
   );
  
-  if (isLoading) return <Spin size="small" />;
-  if (!data) return null;
+  if (referenceRespponse.isLoading) return <Spin size="small" />;
+  if (!referenceRespponse.data) return null;
 
-  return <>{children(data, total)}</>;
+  return <>{children(referenceRespponse)}</>;
 }
 
 export default ReferenceManyResource;
