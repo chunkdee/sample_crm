@@ -1,34 +1,19 @@
 import React from 'react';
-import { Form, Input, Select, Upload, Card, Button, message } from 'antd';
+import { Form, Input, Select, Upload, Button, message } from 'antd';
 import { LoadingOutlined, PlusOutlined, UserOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { EditBase, useEditContext, useGetList } from 'ra-core';
 import { Contact, Company } from '../datagenerator/types/crmTypes';
-import styled from '@emotion/styled';
-
-const StyledCard = styled(Card)`
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  
-  .ant-card-body {
-    padding: 24px;
-  }
-`;
-
-const FormCard = styled(Card)`
-  margin-bottom: 24px;
-  border-radius: 8px;
-`;
-
+import { EditCard, FormCard } from './ContactStyle';
 
 const ContactEdit: React.FC = () => {
-    return (
-      <EditBase resource="contacts">
-        <StyledCard title="Edit Contact">
-          <ContactEditForm />
-        </StyledCard>
-      </EditBase>
-    );
-  };
+  return (
+    <EditBase resource="contacts">
+      <EditCard title="Edit Contact">
+        <ContactEditForm />
+      </EditCard>
+    </EditBase>
+  );
+};
 
 const ContactEditForm: React.FC = () => {
   const [form] = Form.useForm();
@@ -184,7 +169,5 @@ const ContactEditForm: React.FC = () => {
     </Form>
   );
 };
-
-
 
 export default ContactEdit;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ShowBase } from 'ra-core';
 import ContactView from './ContactView';
 

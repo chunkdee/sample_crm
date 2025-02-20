@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Card, Space, Avatar, Table } from 'antd';
+import { Card, Space, Avatar, Table, List } from 'antd';
 import { Contact } from '../datagenerator/types/crmTypes';
 
 export const StyledCard = styled(Card)`
@@ -135,4 +135,48 @@ export const ContactInfo = styled.div`
     padding-left: 52px;
     color: #595959;
   }
+`;
+
+// Add these new styled components for ContactView
+export const ProfileCard = styled(Card)`
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 24px;
+`;
+
+export const ProfileSection = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+`;
+
+export const ProfileInfo = styled.div`
+  margin-left: 24px;
+  flex: 1;
+`;
+
+export const ContactDetails = styled(List)`
+  display: flex;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+
+  .ant-list-item {
+    margin: 0;
+    padding: 0;
+  }
+`;
+
+export const EditCard = styled(Card)`
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  
+  .ant-card-body {
+    padding: 24px;
+  }
+`;
+
+export const FormCard = styled(Card)`
+  margin-bottom: 24px;
+  border-radius: 8px;
 `;

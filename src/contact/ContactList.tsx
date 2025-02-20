@@ -4,11 +4,11 @@ import {
   Col, 
   Input, 
   Space, 
-  Avatar, 
   Typography, 
   List,
   Tag,
-  Segmented
+  Segmented,
+  Avatar
 } from 'antd';
 import { 
   SearchOutlined, 
@@ -16,7 +16,7 @@ import {
   TableOutlined,
   AppstoreOutlined
 } from '@ant-design/icons';
-import { Identifier, useListContext } from 'ra-core';
+import { useListContext } from 'ra-core';
 import { Contact, Company } from '../datagenerator/types/crmTypes';
 import type { ColumnsType } from 'antd/es/table';
 import ViewButton from '../components/common/ViewButton';
