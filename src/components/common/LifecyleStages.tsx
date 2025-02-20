@@ -7,9 +7,10 @@ import { useUpdate } from 'ra-core';
 // Update prop types to receive full Opportunity record
 interface SalesPipelineProps {
   opportunity: Opportunity;
+  onStageClick?: (stageId: OpportunityStage) => void; // Optional callback for stage click  
 }
 
-const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity }) => {
+const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity,onStageClick }) => {
   const [currentStage, setCurrentStage] = useState<OpportunityStage>(opportunity.stage);
   const [update] = useUpdate();
 
@@ -36,6 +37,38 @@ const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity }) => {
           }
         }
       );
+      setCurrentStage(stageId);
+    } catch (error) {
+      console.error('Failed to update opportunity stage:', error);
+    }
+  };
+
+  const handleStageClick1 = async (stageId: OpportunityStage) => {
+    try {
+      if (!opportunity) return;
+
+      // Only send required fields for update
+      const updateData = {
+        id: opportunity.id,
+        stage: stageId,
+        lastModified: new Date(),
+        name: opportunity.name,
+        amount: opportunity.amount,
+        probability: opportunity.probability,
+        closeDate: opportunity.closeDate,
+        description: opportunity.description,
+        companyId: opportunity.companyId
+      };
+
+      await update(
+        'opportunities',
+        { 
+          id: opportunity.id,
+          data: updateData
+        }
+      );
+
+      // Update the local state with new stage
       setCurrentStage(stageId);
     } catch (error) {
       console.error('Failed to update opportunity stage:', error);
@@ -72,7 +105,7 @@ const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity }) => {
         <Stage
           key={stage.id}
           className={getStageColor(stage.id)}
-          onClick={() => handleStageClick(stage.id)} // Add click handler
+          onClick={() => onStageClick(stage.id)} // Add click handler
         >
           {stage.icon} {stage.label}
         </Stage>
@@ -105,7 +138,7 @@ const colorChange = keyframes`
 const PipelineContainer = styled.div`
   display: flex;
   gap: 2px; /* Reduced spacing between stages */
-  padding: 8px; /* Padding inside the border */
+  padding: 6px; /* Padding inside the border */
   justify-content: center;
   border: 1px solid #e0e0e0; /* Subtle border */
   border-radius: 12px; /* Rounded corners */
@@ -116,8 +149,8 @@ const PipelineContainer = styled.div`
 `;
 
 const Stage = styled.div`
-  padding: 8px 24px; /* Larger padding for better spacing */
-  border-radius: 8px; /* Rounded corners */
+  padding: 4px 14px; /* Larger padding for better spacing */
+  border-radius: 10px; /* Rounded corners */
   cursor: pointer;
   text-align: center;
   transition: all 0.3s ease; /* Smooth transitions */

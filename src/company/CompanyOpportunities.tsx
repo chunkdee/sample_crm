@@ -9,6 +9,7 @@ import NoteCard from '../note/Note';
 import { Contact } from '../datagenerator/types/crmTypes';
 import ReferenceManyResource from '../components/common/ReferenceManyResource';
 import LifeCycleStages from '../components/common/LifecyleStages';
+import { useUpdate } from 'ra-core';
 
 const { Text, Title } = Typography;
 
@@ -16,6 +17,20 @@ const DetailsCard = styled(Card)`
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   margin-bottom: 4px;
+
+  .ant-card-head {
+    min-height: 35px;
+    padding: 0 8px;
+    
+    .ant-card-head-title {
+      padding: 6px 0;  // Reduced from default 16px
+      font-size: 14px;
+    }
+  }
+
+  .ant-card-body {
+    padding: 12px;  // Reduced from default 24px
+  }
 `;
 
 const ContactChip = styled.div`
@@ -57,13 +72,49 @@ const ContactChip = styled.div`
 const CompanyOpportunitiesTable: React.FC<{ companyId: Identifier }> = ({ companyId }) => {
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [update] = useUpdate();
 
   const handleRowClick = (record: Opportunity) => {
     setSelectedOpportunity(record);
     setIsModalVisible(true);
   };
 
-  const { data: opportunities, isLoading } = useGetManyReference<Opportunity>(
+  // Handle stage click with data update
+  const handleStageClick = async (stageId: OpportunityStage) => {
+    try {
+      if (!selectedOpportunity) return;
+
+      // Only send required fields for update
+      const updateData = {
+        id: selectedOpportunity.id,
+        stage: stageId,
+        lastModified: new Date(),
+        name: selectedOpportunity.name,
+        amount: selectedOpportunity.amount,
+        probability: selectedOpportunity.probability,
+        closeDate: selectedOpportunity.closeDate,
+        description: selectedOpportunity.description,
+        companyId: selectedOpportunity.companyId
+      };
+
+      await update(
+        'opportunities',
+        { 
+          id: selectedOpportunity.id,
+          data: updateData
+        }
+      );
+       
+      refetch();
+      // Update the local state with new stage
+      setSelectedOpportunity(prev => prev ? { ...prev, stage: stageId } : null);
+
+    } catch (error) {
+      console.error('Failed to update opportunity stage:', error);
+    }
+  };
+
+  const { data: opportunities, isLoading,refetch } = useGetManyReference<Opportunity>(
     'opportunities',
     { target: 'companyId', id: String(companyId) },
   );
@@ -257,6 +308,7 @@ const CompanyOpportunitiesTable: React.FC<{ companyId: Identifier }> = ({ compan
                 <DetailsCard title="Pipeline Stage">
                   <LifeCycleStages 
                     opportunity={selectedOpportunity}
+                    onStageClick={handleStageClick}
                   />
                 </DetailsCard>
 
