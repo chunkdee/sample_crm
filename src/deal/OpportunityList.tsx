@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Typography, Tag , Space, Statistic, Input, Button } from 'antd';
 import {  DollarOutlined, PlusOutlined } from '@ant-design/icons';
@@ -32,24 +32,61 @@ const OpportunityList: React.FC = () => {
   const { token } = theme.useToken();
   const [searchText, setSearchText] = useState('');
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [localOpportunities, setLocalOpportunities] = useState<Record<string, Opportunity[]>>({});
+  
+  // Use useEffect to initialize and update localOpportunities when opportunities change
+  useEffect(() => {
+    if (opportunities) {
+      const grouped = opportunities.reduce((acc: Record<string, Opportunity[]>, opportunity: Opportunity) => {
+        if (!acc[opportunity.stage]) {
+          acc[opportunity.stage] = [];
+        }
+        acc[opportunity.stage].push(opportunity);
+        return acc;
+      }, {});
+      setLocalOpportunities(grouped);
+    }
+  }, [opportunities]);
 
   const handleDragEnd = async (result: any) => {
     if (!result.destination) return;
 
     const opportunityId = result.draggableId;
-    const newStage = opportunityStageArray[result.destination.droppableId];
+    const sourceStage = opportunityStageArray[Number(result.source.droppableId)];
+    const destinationStage = opportunityStageArray[Number(result.destination.droppableId)];
+    
+    // Update local state immediately for smooth UI update
+    setLocalOpportunities(prev => {
+      const newState = { ...prev };
+      const [movedOpportunity] = newState[sourceStage].splice(result.source.index, 1);
+      
+      if (!newState[destinationStage]) {
+        newState[destinationStage] = [];
+      }
+      
+      movedOpportunity.stage = destinationStage;
+      newState[destinationStage].splice(result.destination.index, 0, movedOpportunity);
+      
+      return newState;
+    });
 
     try {
       await update(
         'opportunities',
         {
           id: opportunityId,
-          data: { stage: newStage }
+          data: { 
+            stage: destinationStage,
+            lastModified: new Date()
+          }
         }
       );
-      refetch();
+      // Only refetch if there's an error or after a delay to ensure consistency
+      setTimeout(() => refetch(), 1000);
     } catch (error) {
       console.error('Error updating opportunity stage:', error);
+      // Revert local state on error
+      refetch();
     }
   };
 
@@ -57,14 +94,6 @@ const OpportunityList: React.FC = () => {
     setIsCreateModalVisible(false);
     refetch();
   };
-
-  const groupedOpportunities = opportunities?.reduce((acc: Record<string, Opportunity[]>, opportunity: Opportunity) => {
-    if (!acc[opportunity.stage]) {
-      acc[opportunity.stage] = [];
-    }
-    acc[opportunity.stage].push(opportunity);
-    return acc;
-  }, {});
 
   return (
     <Container>
@@ -112,11 +141,11 @@ const OpportunityList: React.FC = () => {
                       {status}
                     </Title>
                     <Tag color={statusColors[status]}>
-                      {groupedOpportunities?.[status]?.length || 0}
+                      {localOpportunities[status]?.length || 0}
                     </Tag>
                   </ColumnHeader>
 
-                  {groupedOpportunities?.[status]?.map((opportunity: Opportunity, index: number) => (
+                  {localOpportunities[status]?.map((opportunity: Opportunity, index: number) => (
                     <Draggable 
                       key={opportunity.id} 
                       draggableId={String(opportunity.id)} 
