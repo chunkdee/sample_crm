@@ -4,11 +4,10 @@ import { Avatar, Spin, Col, Row, Tabs, Space, Typography, List } from 'antd';
 import { MailOutlined, PhoneOutlined, BankOutlined } from '@ant-design/icons';
 import { Company } from '../datagenerator/types/crmTypes';
 import NoteCard from '../note/Note';
-import LifeCycleStages from '../components/common/LifecyleStages';
 import TaskCard from '../task/Task';
 import CompanyContactsTable from './CompanyContacts';
+import CompanyOpportunitiesTable from './CompanyOpportunitiesbk';
 import CompanyOpportunitiesTable from './CompanyOpportunities';
-import CompanyOpportunitiesTable2 from './CompanyOpportunities2';
 import { ReferenceManyResourceV2 } from '../components/common/ReferenceManyResourceContext';
 
 import {
@@ -88,7 +87,7 @@ const CompanyView: React.FC = () => {
                                             id={company.id}
                                             target='companyId'
                                           >
-                <CompanyOpportunitiesTable2/>
+                <CompanyOpportunitiesTable/>
                  </ReferenceManyResourceV2>
               
               </TabPane>

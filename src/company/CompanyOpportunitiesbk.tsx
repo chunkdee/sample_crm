@@ -1,6 +1,7 @@
-import React, { useState, useContext} from 'react';
+import React, { useState } from 'react';
 import { Space, Typography, Table, Tag, Modal, Card, Row, Col, Statistic, Timeline, List, Avatar, Divider } from 'antd';
 import { DollarOutlined, CalendarOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { useGetManyReference, Identifier } from 'ra-core';
 import { Opportunity } from '../datagenerator/types/crmTypes';
 import type { ColumnsType } from 'antd/es/table';
 import styled from '@emotion/styled';
@@ -8,7 +9,6 @@ import NoteCard from '../note/Note';
 import { Contact } from '../datagenerator/types/crmTypes';
 import ReferenceManyResource from '../components/common/ReferenceManyResource';
 import LifeCycleStages from '../components/common/LifecyleStages';
-import {ReferenceManyResourceContext  } from '../components/common/ReferenceManyResourceContext';
 import { useUpdate } from 'ra-core';
 
 const { Text, Title } = Typography;
@@ -69,21 +69,10 @@ const ContactChip = styled.div`
   }
 `;
 
-const CompanyOpportunitiesTable2:React.FC = () => {
- 
-  const opportunityContext   = useContext(ReferenceManyResourceContext)
-
-
-  if (!opportunityContext) return null;
-
-  const { data: opportunities, refetch,isLoading } = opportunityContext;
-
-
- 
- const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
- const [isModalVisible, setIsModalVisible] = useState(false);
- const [update ] = useUpdate();
-
+const CompanyOpportunitiesTable: React.FC<{ companyId: Identifier }> = ({ companyId }) => {
+  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [update] = useUpdate();
 
   const handleRowClick = (record: Opportunity) => {
     setSelectedOpportunity(record);
@@ -124,6 +113,11 @@ const CompanyOpportunitiesTable2:React.FC = () => {
       console.error('Failed to update opportunity stage:', error);
     }
   };
+
+  const { data: opportunities, isLoading,refetch } = useGetManyReference<Opportunity>(
+    'opportunities',
+    { target: 'companyId', id: String(companyId) },
+  );
 
   const getStageColor = (stage: string) => {
     switch (stage) {
@@ -314,7 +308,7 @@ const CompanyOpportunitiesTable2:React.FC = () => {
                 <DetailsCard title="Pipeline Stage">
                   <LifeCycleStages 
                     opportunity={selectedOpportunity}
-                    onStageClick={handleStageClick}
+                    //onStageClick={handleStageClick}
                   />
                 </DetailsCard>
 
@@ -333,4 +327,4 @@ const CompanyOpportunitiesTable2:React.FC = () => {
   );
 };
 
-export default CompanyOpportunitiesTable2;
+export default CompanyOpportunitiesTable;

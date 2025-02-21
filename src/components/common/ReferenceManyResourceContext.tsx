@@ -22,7 +22,6 @@ export function ReferenceManyResourceV2<T extends RaRecord>({ resource, id, targ
      { target, id },
   );
 
-   const [update] = useUpdate();
  
   if (referenceResponse.isLoading) return <Spin size="small" />;
   if (!referenceResponse.data) return null;
@@ -34,5 +33,3 @@ export function ReferenceManyResourceV2<T extends RaRecord>({ resource, id, targ
    </ReferenceManyResourceContext.Provider>
       );
 };
-
-//export  ReferenceManyResourceV2;
