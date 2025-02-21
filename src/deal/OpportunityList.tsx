@@ -8,6 +8,7 @@ import { Container, BoardContainer, Column, ColumnHeader, DealCard } from '../st
 import { theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {OpportunityStage} from '../datagenerator/types/crmTypes';
+import CreateOpportunityModal from './CreateOpportunityModal';
 
 const { Title, Text } = Typography;
 
@@ -30,6 +31,7 @@ const OpportunityList: React.FC = () => {
   const [update] = useUpdate();
   const { token } = theme.useToken();
   const [searchText, setSearchText] = useState('');
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
   const handleDragEnd = async (result: any) => {
     if (!result.destination) return;
@@ -51,6 +53,11 @@ const OpportunityList: React.FC = () => {
     }
   };
 
+  const handleCreateSuccess = () => {
+    setIsCreateModalVisible(false);
+    refetch();
+  };
+
   const groupedOpportunities = opportunities?.reduce((acc: Record<string, Opportunity[]>, opportunity: Opportunity) => {
     if (!acc[opportunity.stage]) {
       acc[opportunity.stage] = [];
@@ -70,7 +77,7 @@ const OpportunityList: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => navigate('/opportunities/create')}
+          onClick={() => setIsCreateModalVisible(true)}
         >
           Create Opportunity
         </Button>
@@ -85,6 +92,12 @@ const OpportunityList: React.FC = () => {
         />
       </div>
       
+      <CreateOpportunityModal
+        visible={isCreateModalVisible}
+        onCancel={() => setIsCreateModalVisible(false)}
+        onSuccess={handleCreateSuccess}
+      />
+
       <DragDropContext onDragEnd={handleDragEnd}>
         <BoardContainer>
           {opportunityStageArray.map((status, columnIndex) => (

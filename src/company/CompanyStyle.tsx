@@ -66,3 +66,59 @@ export const StyledCard = styled(Card)`
     border-radius: 3px;
   }
 `;
+
+export const DetailsCard = styled(Card)`
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 4px;
+
+  .ant-card-head {
+    min-height: 35px;
+    padding: 0 8px;
+    
+    .ant-card-head-title {
+      padding: 6px 0;
+      font-size: 14px;
+    }
+  }
+
+  .ant-card-body {
+    padding: 12px;
+  }
+`;
+
+export const ContactChip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 4px 12px;
+  margin: 0 8px 8px 0;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #e6f7ff;
+  }
+
+  .ant-avatar {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    border: 1px solid #e8e8e8;
+  }
+
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    
+    .contact-name {
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    
+    .contact-position {
+      font-size: 12px;
+      color: #8c8c8c;
+    }
+  }
+`;

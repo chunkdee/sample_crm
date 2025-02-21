@@ -6,7 +6,6 @@ import { Company } from '../datagenerator/types/crmTypes';
 import NoteCard from '../note/Note';
 import TaskCard from '../task/Task';
 import CompanyContactsTable from './CompanyContacts';
-import CompanyOpportunitiesTable from './CompanyOpportunitiesbk';
 import CompanyOpportunitiesTable from './CompanyOpportunities';
 import { ReferenceManyResourceV2 } from '../components/common/ReferenceManyResourceContext';
 
@@ -17,8 +16,6 @@ import {
   CompanyDetails,
   StyledCard
 } from './CompanyStyle';
-import { Opportunity } from '../deal';
-import Opportunities from '../deal/Opportunity';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;

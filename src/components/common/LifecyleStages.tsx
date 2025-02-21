@@ -14,7 +14,7 @@ const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity, onStageCli
   const [update] = useUpdate();
   
   // Add useGetOne hook
-  const { data: fetchedOpportunity, isLoading } = useGetOne(
+  const { data: fetchedOpportunity, refetch } = useGetOne(
     'opportunities',
     { id: opportunity.id },
     { enabled: !!opportunity.id }
@@ -72,7 +72,7 @@ const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity, onStageCli
 
     
       if (onStageClick) {
-        onStageClick(stageId);
+          onStageClick(stageId);
         setCurrentStage(stageId);
       }
     } catch (error) {

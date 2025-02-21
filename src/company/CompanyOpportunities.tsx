@@ -3,87 +3,25 @@ import { Space, Typography, Table, Tag, Modal, Card, Row, Col, Statistic, Timeli
 import { DollarOutlined, CalendarOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { Opportunity } from '../datagenerator/types/crmTypes';
 import type { ColumnsType } from 'antd/es/table';
-import styled from '@emotion/styled';
 import NoteCard from '../note/Note';
 import { Contact } from '../datagenerator/types/crmTypes';
 import ReferenceManyResource from '../components/common/ReferenceManyResource';
 import LifeCycleStages from '../components/common/LifecyleStages';
 import {ReferenceManyResourceContext  } from '../components/common/ReferenceManyResourceContext';
 import { useUpdate } from 'ra-core';
+import { DetailsCard, ContactChip } from './CompanyStyle';
 
 const { Text, Title } = Typography;
 
-const DetailsCard = styled(Card)`
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  margin-bottom: 4px;
-
-  .ant-card-head {
-    min-height: 35px;
-    padding: 0 8px;
-    
-    .ant-card-head-title {
-      padding: 6px 0;  // Reduced from default 16px
-      font-size: 14px;
-    }
-  }
-
-  .ant-card-body {
-    padding: 12px;  // Reduced from default 24px
-  }
-`;
-
-const ContactChip = styled.div`
-  display: inline-flex;
-  align-items: center;
-  background: #f5f5f5;
-  border-radius: 16px;
-  padding: 4px 12px;
-  margin: 0 8px 8px 0;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #e6f7ff;
-  }
-
-  .ant-avatar {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
-    border: 1px solid #e8e8e8;
-  }
-
-  .contact-info {
-    display: flex;
-    flex-direction: column;
-    
-    .contact-name {
-      font-size: 13px;
-      line-height: 1.2;
-    }
-    
-    .contact-position {
-      font-size: 12px;
-      color: #8c8c8c;
-    }
-  }
-`;
-
 const CompanyOpportunitiesTable:React.FC = () => {
  
-  const opportunityContext   = useContext(ReferenceManyResourceContext)
+const opportunityContext   = useContext(ReferenceManyResourceContext)
 
-
-  if (!opportunityContext) return null;
-
-  const { data: opportunities, refetch,isLoading } = opportunityContext;
-
-
- 
+if (!opportunityContext) return null;
+ const { data: opportunities, refetch,isLoading } = opportunityContext;
  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
  const [isModalVisible, setIsModalVisible] = useState(false);
  const [update ] = useUpdate();
-
 
   const handleRowClick = (record: Opportunity) => {
     setSelectedOpportunity(record);
