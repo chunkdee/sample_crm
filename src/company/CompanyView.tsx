@@ -8,6 +8,9 @@ import LifeCycleStages from '../components/common/LifecyleStages';
 import TaskCard from '../task/Task';
 import CompanyContactsTable from './CompanyContacts';
 import CompanyOpportunitiesTable from './CompanyOpportunities';
+import CompanyOpportunitiesTable2 from './CompanyOpportunities2';
+import { ReferenceManyResourceV2 } from '../components/common/ReferenceManyResourceV2';
+
 import {
   ProfileCard,
   ProfileSection,
@@ -15,6 +18,8 @@ import {
   CompanyDetails,
   StyledCard
 } from './CompanyStyle';
+import { Opportunity } from '../deal';
+import Opportunities from '../deal/Opportunity';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -78,7 +83,14 @@ const CompanyView: React.FC = () => {
               </TabPane>
 
               <TabPane tab="Opportunities" key="2">
-                <CompanyOpportunitiesTable companyId={company.id} />
+                 <ReferenceManyResourceV2<Opportunity>
+                                            resource="opportunities"
+                                            id={company.id}
+                                            target='companyId'
+                                          >
+                <CompanyOpportunitiesTable2/>
+                 </ReferenceManyResourceV2>
+              
               </TabPane>
 
               <TabPane tab="Tasks" key="3">
