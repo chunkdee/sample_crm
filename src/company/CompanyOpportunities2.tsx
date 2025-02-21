@@ -8,7 +8,7 @@ import NoteCard from '../note/Note';
 import { Contact } from '../datagenerator/types/crmTypes';
 import ReferenceManyResource from '../components/common/ReferenceManyResource';
 import LifeCycleStages from '../components/common/LifecyleStages';
-import {ReferenceManyResourceContext  } from '../components/common/ReferenceManyResourceV2';
+import {ReferenceManyResourceContext  } from '../components/common/ReferenceManyResourceContext';
 import { useUpdate } from 'ra-core';
 
 const { Text, Title } = Typography;

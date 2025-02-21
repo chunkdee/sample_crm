@@ -308,7 +308,7 @@ const CompanyOpportunitiesTable: React.FC<{ companyId: Identifier }> = ({ compan
                 <DetailsCard title="Pipeline Stage">
                   <LifeCycleStages 
                     opportunity={selectedOpportunity}
-                    onStageClick={handleStageClick}
+                    //onStageClick={handleStageClick}
                   />
                 </DetailsCard>
 

@@ -1,49 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FileTextOutlined, PhoneOutlined, StarOutlined, CheckCircleOutlined, ShakeOutlined, TrophyOutlined } from "@ant-design/icons";
 import styled, { keyframes } from "styled-components";
 import { OpportunityStage, Opportunity } from "../../datagenerator/types/crmTypes";
-import { useUpdate } from 'ra-core';
+import { useUpdate, useGetOne } from 'ra-core';
 
-// Update prop types to receive full Opportunity record
 interface SalesPipelineProps {
   opportunity: Opportunity;
-  onStageClick?: (stageId: OpportunityStage) => void; // Optional callback for stage click  
+  onStageClick?: (stageId: OpportunityStage) => void;
 }
 
-const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity,onStageClick }) => {
+const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity, onStageClick }) => {
   const [currentStage, setCurrentStage] = useState<OpportunityStage>(opportunity.stage);
   const [update] = useUpdate();
+  
+  // Add useGetOne hook
+  const { data: fetchedOpportunity, isLoading } = useGetOne(
+    'opportunities',
+    { id: opportunity.id },
+    { enabled: !!opportunity.id }
+  );
 
-  const stages: { id: OpportunityStage; label: string; icon: JSX.Element }[] = [
-    { id: "Prospecting", label: "Prospecting", icon: <FileTextOutlined /> },
-    { id: "Qualification", label: "Qualification", icon: <PhoneOutlined /> },
-    { id: "Proposal", label: "Proposal", icon: <StarOutlined /> },
-    { id: "Negotiation", label: "Negotiation", icon: <CheckCircleOutlined /> },
-    { id: "Closed Won", label: "Closed Won", icon: <ShakeOutlined /> },
-    { id: "Closed Lost", label: "Closed Lost", icon: <TrophyOutlined /> },
+  // Update currentStage when fetchedOpportunity changes
+  useEffect(() => {
+    if (fetchedOpportunity) {
+      setCurrentStage(fetchedOpportunity.stage);
+    }
+  }, [fetchedOpportunity]);
+
+
+  // Define stages with icons and labels in database
+  const stages: { id: OpportunityStage; label: string;index:number, icon: JSX.Element }[] = [
+    { id: "Prospecting", label: "Prospecting",index:1, icon: <FileTextOutlined /> },
+    { id: "Qualification", label: "Qualification",index:2, icon: <PhoneOutlined /> },
+    { id: "Proposal", label: "Proposal",index:3, icon: <StarOutlined /> },
+    { id: "Negotiation", label: "Negotiation",index:4, icon: <CheckCircleOutlined /> },
+    { id: "Closed Won", label: "Closed Won",index:5, icon: <ShakeOutlined /> },
+    { id: "Closed Lost", label: "Closed Lost",index:6, icon: <TrophyOutlined /> },
   ];
 
-  // Handle stage click with data update
-  const handleStageClick = async (stageId: OpportunityStage) => {
-    try {
-      await update(
-        'opportunities',
-        { 
-          id: opportunity.id,
-          data: { 
-            ...opportunity,
-            stage: stageId,
-            lastModified: new Date()
-          }
-        }
-      );
-      setCurrentStage(stageId);
-    } catch (error) {
-      console.error('Failed to update opportunity stage:', error);
-    }
-  };
 
-  const handleStageClick1 = async (stageId: OpportunityStage) => {
+  // Handle stage click and update opportunity stage
+  const handleStageClick = async (stageId: OpportunityStage) => {
+    const stageIndex = stages.findIndex((s) => s.id === stageId);
+    const currentIndex = stages.findIndex((s) => s.id === currentStage);
+
+    if(stageIndex <= currentIndex) return; // Prevent moving back to a previous stage
+    
     try {
       if (!opportunity) return;
 
@@ -68,8 +70,11 @@ const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity,onStageClic
         }
       );
 
-      // Update the local state with new stage
-      setCurrentStage(stageId);
+    
+      if (onStageClick) {
+        onStageClick(stageId);
+        setCurrentStage(stageId);
+      }
     } catch (error) {
       console.error('Failed to update opportunity stage:', error);
     }
@@ -80,7 +85,10 @@ const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity,onStageClic
     const stageIndex = stages.findIndex((s) => s.id === stageId);
     const currentIndex = stages.findIndex((s) => s.id === currentStage);
 
+    
     if (currentIndex === -1) return ""; // No current stage
+
+
 
     // Color logic based on the current stage
     if (stageId === "Prospecting" && currentStage === "Prospecting") return "blue";
@@ -105,7 +113,7 @@ const LifeCycleStages: React.FC<SalesPipelineProps> = ({ opportunity,onStageClic
         <Stage
           key={stage.id}
           className={getStageColor(stage.id)}
-          onClick={() => onStageClick(stage.id)} // Add click handler
+          onClick={() => handleStageClick(stage.id)} // Add click handler
         >
           {stage.icon} {stage.label}
         </Stage>

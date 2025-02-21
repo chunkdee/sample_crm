@@ -9,7 +9,7 @@ import TaskCard from '../task/Task';
 import CompanyContactsTable from './CompanyContacts';
 import CompanyOpportunitiesTable from './CompanyOpportunities';
 import CompanyOpportunitiesTable2 from './CompanyOpportunities2';
-import { ReferenceManyResourceV2 } from '../components/common/ReferenceManyResourceV2';
+import { ReferenceManyResourceV2 } from '../components/common/ReferenceManyResourceContext';
 
 import {
   ProfileCard,
