@@ -2,9 +2,10 @@
 
 import { faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
+
 import {
   User,
+  Profile,
   Company,
   Contact,
   Opportunity,
@@ -13,6 +14,7 @@ import {
   Note,
   Task,
   Report,
+  PermissionSubject
 } from './types/crmTypes'; // Adjust the import path as needed
 
 // Helper function to generate a random date within the last year
@@ -23,17 +25,51 @@ function getRandomDate(): Date {
   return new Date(past.getTime() + Math.random() * (now.getTime() - past.getTime()));
 }
 
-// Generate sample users
+// Generate sample users with Supabase auth structure
 function generateUsers(count: number): User[] {
   return Array.from({ length: count }, () => ({
     id: uuidv4(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
     email: faker.internet.email(),
     phone: faker.phone.number(),
+    confirmed_at: getRandomDate(),
+    email_confirmed_at: getRandomDate(),
+    phone_confirmed_at: getRandomDate(),
+    last_sign_in_at: getRandomDate(),
+    role: faker.helpers.arrayElement(['authenticated', 'admin']),
+    aud: 'authenticated',
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate()
+  }));
+}
+
+// Generate sample profiles
+function generateProfiles(users: User[]): Profile[] {
+  const defaultPermissions: PermissionSubject[] = [
+    {
+      subject: 'opportunities',
+      actions: ['create', 'read', 'update'],
+      conditions: {
+        companyId: 'auth.user.company_id'
+      }
+    },
+    {
+      subject: 'contacts',
+      actions: ['read', 'update'],
+      conditions: {
+        ownerId: 'auth.user.id'
+      }
+    }
+  ];
+
+  return users.map(user => ({
+    id: uuidv4(),
+    userId: String(user.id),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
     role: faker.helpers.arrayElement(['Admin', 'Sales', 'Support', 'Manager']),
     isActive: faker.datatype.boolean(),
     profileImage: faker.image.avatar(),
+    permissions: defaultPermissions,
     createdAt: getRandomDate(),
     updatedAt: getRandomDate(),
   }));
@@ -86,7 +122,7 @@ function generateOpportunities(count: number, companies: Company[], contacts: Co
     return {
       id: uuidv4(),
       name: faker.company.buzzPhrase(),
-      amount: parseFloat(faker.finance.amount(10000, 1000000, 2)),
+      amount: faker.number.float({ min: 10000, max: 1000000, fractionDigits: 2 }),
       stage: faker.helpers.arrayElement(['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost']),
       probability: faker.number.int({ min: 0, max: 100 }),
       description: faker.company.catchPhrase(),
@@ -99,8 +135,8 @@ function generateOpportunities(count: number, companies: Company[], contacts: Co
   });
 }
 
-// Generate sample leads
-function generateLeads(count: number, users: User[]): Lead[] {
+// Update other generate functions to use Profile instead of User
+function generateLeads(count: number, profiles: Profile[]): Lead[] {
   return Array.from({ length: count }, () => ({
     id: uuidv4(),
     firstName: faker.person.firstName(),
@@ -111,21 +147,21 @@ function generateLeads(count: number, users: User[]): Lead[] {
     profileImage: faker.image.avatar(),
     status: faker.helpers.arrayElement(['New', 'Contacted', 'Qualified', 'Lost']),
     source: faker.helpers.arrayElement(['Web', 'Referral', 'Advertisement']),
-    assignedToId: String(faker.helpers.arrayElement(users).id),
+    assignedToId: String(faker.helpers.arrayElement(profiles).id),
     createdAt: getRandomDate(),
     updatedAt: getRandomDate(),
   }));
 }
 
-// Generate sample activities
-function generateActivities(count: number, users: User[], contacts: Contact[], companies: Company[], opportunities: Opportunity[], leads: Lead[]): Activity[] {
+// Update activities to use Profile
+function generateActivities(count: number, profiles: Profile[], contacts: Contact[], companies: Company[], opportunities: Opportunity[], leads: Lead[]): Activity[] {
   return Array.from({ length: count }, () => ({
     id: uuidv4(),
     type: faker.helpers.arrayElement(['Call', 'Email', 'Meeting', 'Task']),
     description: faker.lorem.sentence(),
     dueDate: getRandomDate(),
     completed: faker.datatype.boolean(),
-    userId: String(faker.helpers.arrayElement(users).id),
+    profileId: String(faker.helpers.arrayElement(profiles).id),
     contactId: String(faker.helpers.arrayElement(contacts).id),
     companyId: String(faker.helpers.arrayElement(companies).id),
     opportunityId: String(faker.helpers.arrayElement(opportunities).id),
@@ -135,12 +171,12 @@ function generateActivities(count: number, users: User[], contacts: Contact[], c
   }));
 }
 
-// Generate sample notes
-function generateNotes(count: number, users: User[], contacts: Contact[], companies: Company[], opportunities: Opportunity[], leads: Lead[]): Note[] {
+// Generate sample notes with Profile
+function generateNotes(count: number, profiles: Profile[], contacts: Contact[], companies: Company[], opportunities: Opportunity[], leads: Lead[]): Note[] {
   return Array.from({ length: count }, () => ({
     id: uuidv4(),
     content: faker.lorem.paragraph(),
-    userId: String(faker.helpers.arrayElement(users).id),
+    profileId: String(faker.helpers.arrayElement(profiles).id),
     contactId: String(faker.helpers.arrayElement(contacts).id),
     companyId: String(faker.helpers.arrayElement(companies).id),
     opportunityId: String(faker.helpers.arrayElement(opportunities).id),
@@ -150,15 +186,15 @@ function generateNotes(count: number, users: User[], contacts: Contact[], compan
   }));
 }
 
-// Generate sample tasks
-function generateTasks(count: number, users: User[], contacts: Contact[], companies: Company[], opportunities: Opportunity[], leads: Lead[]): Task[] {
+// Generate sample tasks with Profile
+function generateTasks(count: number, profiles: Profile[], contacts: Contact[], companies: Company[], opportunities: Opportunity[], leads: Lead[]): Task[] {
   return Array.from({ length: count }, () => ({
     id: uuidv4(),
     title: faker.lorem.words(),
     description: faker.lorem.sentence(),
     dueDate: getRandomDate(),
     completed: faker.datatype.boolean(),
-    userId: String(faker.helpers.arrayElement(users).id),
+    profileId: String(faker.helpers.arrayElement(profiles).id),
     contactId: String(faker.helpers.arrayElement(contacts).id),
     companyId: String(faker.helpers.arrayElement(companies).id),
     opportunityId: String(faker.helpers.arrayElement(opportunities).id),
@@ -168,13 +204,13 @@ function generateTasks(count: number, users: User[], contacts: Contact[], compan
   }));
 }
 
-// Generate sample reports
-function generateReports(count: number, users: User[]): Report[] {
+// Generate sample reports with Profile
+function generateReports(count: number, profiles: Profile[]): Report[] {
   return Array.from({ length: count }, () => ({
     id: uuidv4(),
     name: faker.lorem.words(),
     type: faker.helpers.arrayElement(['Sales', 'Support', 'Marketing']),
-    generatedBy: String(faker.helpers.arrayElement(users).id),
+    generatedByProfileId: String(faker.helpers.arrayElement(profiles).id),
     generatedOn: getRandomDate(),
     content: faker.lorem.paragraphs(),
     createdAt: getRandomDate(),
@@ -182,27 +218,29 @@ function generateReports(count: number, users: User[]): Report[] {
   }));
 }
 
-// Main function to generate all sample data
+// Update the main function
 function generateSampleData(userCount: number, companyCount: number, contactCount: number, opportunityCount: number, leadCount: number, activityCount: number, noteCount: number, taskCount: number, reportCount: number) {
   const users = generateUsers(userCount);
+  const profiles = generateProfiles(users);
   const companies = generateCompanies(companyCount);
   const contacts = generateContacts(contactCount, companies);
   const opportunities = generateOpportunities(opportunityCount, companies, contacts);
-  const leads = generateLeads(leadCount, users);
-  const activities = generateActivities(activityCount, users, contacts, companies, opportunities, leads);
-  const notes = generateNotes(noteCount, users, contacts, companies, opportunities, leads);
-  const tasks = generateTasks(taskCount, users, contacts, companies, opportunities, leads);
-  const reports = generateReports(reportCount, users);
+  const leads = generateLeads(leadCount, profiles);
+  const activities = generateActivities(activityCount, profiles, contacts, companies, opportunities, leads);
+  const notes = generateNotes(noteCount, profiles, contacts, companies, opportunities, leads);
+  const tasks = generateTasks(taskCount, profiles, contacts, companies, opportunities, leads);
+  const reports = generateReports(reportCount, profiles);
 
   // Connect related entities using flatMap
-  users.forEach(user => {
-    user.contacts = contacts.filter(contact => contact.companyId && companies.some(company => company.id === contact.companyId));
-    user.companies = companies.filter(company => contacts.some(contact => contact.companyId === company.id));
-    user.opportunities = opportunities.filter(opportunity => opportunity.companyId && companies.some(company => company.id === opportunity.companyId));
-    user.leads = leads.filter(lead => lead.assignedToId === user.id);
-    user.activities = activities.filter(activity => activity.userId === user.id);
-    user.notes = notes.filter(note => note.userId === user.id);
-    user.tasks = tasks.filter(task => task.userId === user.id);
+  profiles.forEach(profile => {
+    profile.user = users.find(user => user.id === profile.userId);
+    profile.contacts = contacts.filter(contact => contact.companyId && companies.some(company => company.id === contact.companyId));
+    profile.companies = companies.filter(company => contacts.some(contact => contact.companyId === company.id));
+    profile.opportunities = opportunities.filter(opportunity => opportunity.companyId && companies.some(company => company.id === opportunity.companyId));
+    profile.leads = leads.filter(lead => lead.assignedToId === profile.id);
+    profile.activities = activities.filter(activity => activity.profileId === profile.id);
+    profile.notes = notes.filter(note => note.userId === profile.id);
+    profile.tasks = tasks.filter(task => task.userId === profile.id);
   });
 
   companies.forEach(company => {
@@ -215,7 +253,7 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
 
   contacts.forEach(contact => {
     contact.company = companies.find(company => company.id === contact.companyId);
-    contact.opportunities = opportunities.filter(opportunity => opportunity.contacts.some(c => c.id === contact.id));
+    contact.opportunities = opportunities.filter(opportunity => opportunity.contacts?.some(c => c.id === contact.id) || false);
     contact.activities = activities.filter(activity => activity.contactId === contact.id);
     contact.notes = notes.filter(note => note.contactId === contact.id);
     contact.tasks = tasks.filter(task => task.contactId === contact.id);
@@ -231,14 +269,14 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
   });
 
   leads.forEach(lead => {
-    lead.assignedTo = users.find(user => user.id === lead.assignedToId);
+    lead.assignedTo = profiles.find(profile => profile.id === lead.assignedToId);
     lead.activities = activities.filter(activity => activity.leadId === lead.id);
     lead.notes = notes.filter(note => note.leadId === lead.id);
     lead.tasks = tasks.filter(task => task.leadId === lead.id);
   });
 
   activities.forEach(activity => {
-    activity.user = users.find(user => user.id === activity.userId);
+    activity.user = profiles.find(profile => profile.id === activity.profileId);
     activity.contact = contacts.find(contact => contact.id === activity.contactId);
     activity.company = companies.find(company => company.id === activity.companyId);
     activity.opportunity = opportunities.find(opportunity => opportunity.id === activity.opportunityId);
@@ -246,7 +284,7 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
   });
 
   notes.forEach(note => {
-    note.user = users.find(user => user.id === note.userId);
+    note.user = profiles.find(profile => profile.id === note.userId);
     note.contact = contacts.find(contact => contact.id === note.contactId);
     note.company = companies.find(company => company.id === note.companyId);
     note.opportunity = opportunities.find(opportunity => opportunity.id === note.opportunityId);
@@ -254,7 +292,7 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
   });
 
   tasks.forEach(task => {
-    task.user = users.find(user => user.id === task.userId);
+    task.user = profiles.find(profile => profile.id === task.userId);
     task.contact = contacts.find(contact => contact.id === task.contactId);
     task.company = companies.find(company => company.id === task.companyId);
     task.opportunity = opportunities.find(opportunity => opportunity.id === task.opportunityId);
@@ -269,6 +307,7 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
   // Write the generated data to a JSON file
   const data = {
     users,
+    profiles,
     companies,
     contacts,
     opportunities,

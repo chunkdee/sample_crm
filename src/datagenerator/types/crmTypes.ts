@@ -64,7 +64,7 @@ interface Permission {
 }
 
 // Permission type definitions
-interface PermissionSubject {
+export interface PermissionSubject {
   subject: Resource;
   actions: Action[];
   conditions?: {
@@ -78,7 +78,7 @@ interface RolePermission {
 }
 
 // Profile Entity (formerly User)
-interface Profile extends BaseEntity {
+ interface Profile extends BaseEntity {
   userId: string;  // Foreign key to User
   user?: User;     // Relationship to User
   firstName: string;
@@ -158,7 +158,7 @@ interface Lead extends BaseEntity {
   status: 'New' | 'Contacted' | 'Qualified' | 'Lost';
   source?: 'Web' | 'Referral' | 'Advertisement';
   assignedToId?: string;
-  assignedTo?: User;
+  assignedTo?: Profile;  // Changed from User to Profile
   activities?: Activity[];
   notes?: Note[];
   tasks?: Task[];
@@ -199,7 +199,7 @@ interface Note extends BaseEntity {
 
 // Task Entity
 interface Task extends BaseEntity {
-  title: TaskTitle;
+  title: string //TaskTitle;
   description: string;
   dueDate: Date;
   completed: boolean;
