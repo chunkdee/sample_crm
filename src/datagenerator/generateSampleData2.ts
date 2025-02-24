@@ -60,32 +60,43 @@ function generateCompanies(count: number): Company[] {
 
 // Generate sample contacts
 function generateContacts(count: number, companies: Company[]): Contact[] {
-  return Array.from({ length: count }, () => ({
-    id: uuidv4(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
-    profileImage: faker.image.avatar(),
-    companyId: String(faker.helpers.arrayElement(companies).id),
-    createdAt: getRandomDate(),
-    updatedAt: getRandomDate(),
-  }));
+  return Array.from({ length: count }, () => {
+    const company = faker.helpers.arrayElement(companies);
+    return {
+      id: uuidv4(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: faker.internet.email(),
+      phone: faker.phone.number(),
+      profileImage: faker.image.avatar(),
+      position: faker.person.jobTitle(), // Added position field
+      companyId: String(company.id),
+      createdAt: getRandomDate(),
+      updatedAt: getRandomDate(),
+    };
+  });
 }
 
-// Generate sample opportunities
+// Update generateOpportunities function
 function generateOpportunities(count: number, companies: Company[], contacts: Contact[]): Opportunity[] {
-  return Array.from({ length: count }, () => ({
-    id: uuidv4(),
-    name: faker.company.buzzPhrase(),
-    amount: parseFloat(faker.finance.amount()),
-    stage: faker.helpers.arrayElement(['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost']),
-    closeDate: getRandomDate(),
-    companyId: String(faker.helpers.arrayElement(companies).id),
-    contactId: String(faker.helpers.arrayElement(contacts).id),
-    createdAt: getRandomDate(),
-    updatedAt: getRandomDate(),
-  }));
+  return Array.from({ length: count }, () => {
+    // Select random number of contacts (1-3) for this opportunity
+    const opportunityContacts = faker.helpers.arrayElements(contacts, faker.number.int({ min: 1, max: 3 }));
+    
+    return {
+      id: uuidv4(),
+      name: faker.company.buzzPhrase(),
+      amount: parseFloat(faker.finance.amount(10000, 1000000, 2)),
+      stage: faker.helpers.arrayElement(['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost']),
+      probability: faker.number.int({ min: 0, max: 100 }),
+      description: faker.company.catchPhrase(),
+      closeDate: getRandomDate(),
+      companyId: String(faker.helpers.arrayElement(companies).id),
+      contacts: opportunityContacts, // Changed from contactId to contacts array
+      createdAt: getRandomDate(),
+      updatedAt: getRandomDate(),
+    };
+  });
 }
 
 // Generate sample leads
@@ -204,7 +215,7 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
 
   contacts.forEach(contact => {
     contact.company = companies.find(company => company.id === contact.companyId);
-    contact.opportunities = opportunities.filter(opportunity => opportunity.contactId === contact.id);
+    contact.opportunities = opportunities.filter(opportunity => opportunity.contacts.some(c => c.id === contact.id));
     contact.activities = activities.filter(activity => activity.contactId === contact.id);
     contact.notes = notes.filter(note => note.contactId === contact.id);
     contact.tasks = tasks.filter(task => task.contactId === contact.id);
@@ -212,7 +223,8 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
 
   opportunities.forEach(opportunity => {
     opportunity.company = companies.find(company => company.id === opportunity.companyId);
-    opportunity.contact = contacts.find(contact => contact.id === opportunity.contactId);
+    // Remove the old contact relationship
+    // opportunity.contact = contacts.find(contact => contact.id === opportunity.contactId);
     opportunity.activities = activities.filter(activity => activity.opportunityId === opportunity.id);
     opportunity.notes = notes.filter(note => note.opportunityId === opportunity.id);
     opportunity.tasks = tasks.filter(task => task.opportunityId === opportunity.id);
@@ -272,6 +284,6 @@ function generateSampleData(userCount: number, companyCount: number, contactCoun
 
 // Generate sample data and save to db.json
 //export default generateSampleData
- const sampleData = generateSampleData(5, 5, 5, 10, 5, 20, 10, 20, 5);
+ const sampleData = generateSampleData(5, 15, 30, 30, 5, 5, 5, 5, 5);
 
  export default sampleData;

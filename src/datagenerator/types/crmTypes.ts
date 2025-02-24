@@ -104,12 +104,13 @@ interface BaseEntity<IdentifierType extends Identifier = Identifier>
   interface Opportunity extends BaseEntity {
     name: string;
     amount: number;
-    stage: OpportunityStage// 'Prospecting' | 'Qualification' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
+    stage: OpportunityStage;
+    probability: number;
+    description?: string;
     closeDate: Date;
     companyId: string;
     company?: Company;
-    contactId?: string;
-    contact?: Contact;
+    contacts?: Contact[];  // Changed from single contact to contacts array
     activities?: Activity[];
     notes?: Note[];
     tasks?: Task[];
