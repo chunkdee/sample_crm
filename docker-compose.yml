@@ -5,19 +5,19 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: your-super-secret-password
+      POSTGRES_PASSWORD: Tiger1234
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
 
   supabase-studio:
-    image: supabase/studio:20231124-8b43fd0
+    image: supabase/studio:latest    # Changed to latest tag
     ports:
       - "3000:3000"
     environment:
       STUDIO_PG_META_URL: http://meta:8080
-      POSTGRES_PASSWORD: your-super-secret-password
-      DEFAULT_ORGANIZATION: your-org-name
-      DEFAULT_PROJECT: default-project
+      POSTGRES_PASSWORD: Tiger1234
+      DEFAULT_ORGANIZATION: OctoSoft
+      DEFAULT_PROJECT: crm
 
   kong:
     image: kong:2.8.1
@@ -37,4 +37,5 @@ services:
     environment:
       PG_META_PORT: 8080
       PG_META_DB_HOST: supabase-db
-      PG_META_DB_PASSWORD: your-super-secret-password
+      PG_META_DB_PASSWORD: Tiger1234
+      
