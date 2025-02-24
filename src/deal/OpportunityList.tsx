@@ -164,7 +164,7 @@ const OpportunityList: React.FC = () => {
                             <Space>
                               <DollarOutlined style={{ fontSize: '12px' }} />
                               <Statistic 
-                                value={opportunity.value} 
+                                value={opportunity.amount} 
                                 precision={0} 
                                 prefix="$"
                                 valueStyle={{ fontSize: '12px' }}

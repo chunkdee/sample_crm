@@ -76,7 +76,6 @@ const CreateOpportunityModal: React.FC<CreateOpportunityModalProps> = ({
             ...values,
             createdAt: new Date(),
             lastModified: new Date(),
-            stage: 'Prospecting' as OpportunityStage,
           },
         }
       );
