@@ -6,6 +6,14 @@ const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+interface RegisterParams {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role?: string;
+}
+
 export const supabaseAuthProvider: AuthProvider = {
     login: async ({ email, password }) => {
         try {
@@ -123,10 +131,85 @@ export const supabaseAuthProvider: AuthProvider = {
     // Implement canAccess from your existing authProvider
     async canAccess({ resource, action }) {
         const subject = resource.toLowerCase();
-        const permissions = JSON.parse(localStorage.getItem('permissions') || '[]');
-        if (!permissions) return false;
+       // if (!permissions) return false;
 
-        const ability = createAbilityFromPermissions(permissions);
-        return Promise.resolve(ability?.can(action, subject) ?? false);
+        // const ability = createAbilityFromPermissions(permissions);
+        // return Promise.resolve(ability?.can(action, subject) ?? false);
+        return Promise.resolve(true); // Placeholder, replace with actual permission check
+    },
+
+    register: async ({ email, password, firstName, lastName, role = 'user' }: RegisterParams) => {
+        try {
+            // 1. Create auth user
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        role: role
+                    }
+                }
+            });
+
+            if (authError) {
+                throw new HttpError(
+                    'Registration failed',
+                    400,
+                    { message: authError.message }
+                );
+            }
+
+            if (!authData.user) {
+                throw new HttpError(
+                    'Registration failed',
+                    400,
+                    { message: 'User creation failed' }
+                );
+            }
+
+            // 2. Create user profile with default permissions
+            const defaultPermissions = [
+                {
+                    subject: 'profile',
+                    actions: ['read', 'update'],
+                    conditions: {
+                        id: authData.user.id
+                    }
+                }
+            ];
+
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                    id: authData.user.id,
+                    first_name: firstName,
+                    last_name: lastName,
+                    role: role,
+                    permissions: defaultPermissions,
+                    is_active: true
+                });
+
+            if (profileError) {
+                // Cleanup: delete auth user if profile creation fails
+                await supabase.auth.admin.deleteUser(authData.user.id);
+                throw new HttpError(
+                    'Profile creation failed',
+                    400,
+                    { message: profileError.message }
+                );
+            }
+
+            return Promise.resolve();
+        } catch (error: any) {
+            return Promise.reject(
+                new HttpError(
+                    'Registration failed',
+                    400,
+                    { message: error.message }
+                )
+            );
+        }
     },
 };

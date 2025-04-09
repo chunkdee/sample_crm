@@ -1,8 +1,8 @@
 import postgrestRestProvider from '@raphiniert/ra-data-postgrest';
 import { supabase } from './supabase';
 
-const apiUrl = process.env.REACT_APP_SUPABASE_URL || '';
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
+const apiUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 
 const httpClient = async (url: string, options: any = {}) => {
     if (!options.headers) {
@@ -16,7 +16,13 @@ const httpClient = async (url: string, options: any = {}) => {
     return fetch(url, options);
 };
 
-const postRESTDataProvider = postgrestRestProvider(apiUrl, httpClient);
+const postRESTDataProvider = postgrestRestProvider({
+    apiUrl,
+    httpClient,
+    defaultListOp: 'eq',
+    primaryKeys: new Map(),
+    schema: () => 'public',
+});
 
 // Add custom methods if needed
 const dataProvider = {

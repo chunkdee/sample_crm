@@ -1,27 +1,62 @@
 import { createClient } from '@supabase/supabase-js';
 import sampleData from '../datagenerator/generateSampleData2';
 
-const supabaseUrl = 'http://localhost:8000';
-const supabaseKey = 'your-anon-key';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://localhost:8000';
+const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+if (!serviceRoleKey) {
+  throw new Error('VITE_SUPABASE_SERVICE_ROLE_KEY is required but not found in environment variables');
+}
+
+const supabase = createClient(supabaseUrl, serviceRoleKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  },
+    db: { schema: 'octocrm' }
+});
+
+const supabase1 = createClient(supabaseUrl, supabaseAnon);
+
+
 
 async function seedDatabase() {
-  const supabase = createClient(supabaseUrl, supabaseKey);
 
+  const { data: todos, error } = await supabase.from('my_table').select('*')
   try {
-    // Create tables first
     const createTables = async () => {
-      // Users table
+      // Users table (Supabase Auth Users)
+
+      
+      // await supabase.rpc('create_table_if_not_exists', {
+      //   tbl_name: 'users',
+      //  schema_definition: `
+      //     id UUID PRIMARY KEY,
+      //     email TEXT UNIQUE,
+      //     phone TEXT,
+      //     confirmed_at TIMESTAMPTZ,
+      //     email_confirmed_at TIMESTAMPTZ,
+      //     phone_confirmed_at TIMESTAMPTZ,
+      //     last_sign_in_at TIMESTAMPTZ,
+      //     role TEXT,
+      //     aud TEXT,
+      //     created_at TIMESTAMPTZ,
+      //     updated_at TIMESTAMPTZ
+      //   `
+      // });
+
+      // Profiles table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'users',
-        schema: `
-          id UUID PRIMARY KEY,
+        tbl_name: 'octocrm.profiles',
+       schema_definition: `
+          id UUID PRIMARY KEY REFERENCES auth.users(id),
           first_name TEXT,
           last_name TEXT,
-          email TEXT UNIQUE,
-          phone TEXT,
-          role TEXT,
-          is_active BOOLEAN,
+          role TEXT CHECK (role IN ('Admin', 'Sales', 'Support', 'Manager')),
+          is_active BOOLEAN DEFAULT true,
           profile_image TEXT,
+          permissions JSONB DEFAULT '[]',
           created_at TIMESTAMPTZ,
           updated_at TIMESTAMPTZ
         `
@@ -29,8 +64,8 @@ async function seedDatabase() {
 
       // Companies table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'companies',
-        schema: `
+        tbl_name: 'octocrm.companies',
+       schema_definition: `
           id UUID PRIMARY KEY,
           name TEXT,
           industry TEXT,
@@ -49,8 +84,8 @@ async function seedDatabase() {
 
       // Contacts table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'contacts',
-        schema: `
+        tbl_name: 'octocrm.contacts',
+       schema_definition: `
           id UUID PRIMARY KEY,
           first_name TEXT,
           last_name TEXT,
@@ -66,8 +101,8 @@ async function seedDatabase() {
 
       // Opportunities table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'opportunities',
-        schema: `
+        tbl_name: 'octocrm.opportunities',
+       schema_definition: `
           id UUID PRIMARY KEY,
           name TEXT,
           amount DECIMAL,
@@ -81,28 +116,20 @@ async function seedDatabase() {
         `
       });
 
-      // Opportunity_Contacts (junction table for many-to-many relationship)
-      await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'opportunity_contacts',
-        schema: `
-          opportunity_id UUID REFERENCES opportunities(id),
-          contact_id UUID REFERENCES contacts(id),
-          PRIMARY KEY (opportunity_id, contact_id)
-        `
-      });
-
       // Leads table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'leads',
-        schema: `
+        tbl_name: 'octocrm.leads',
+       schema_definition: `
           id UUID PRIMARY KEY,
           first_name TEXT,
           last_name TEXT,
           email TEXT,
           phone TEXT,
           company TEXT,
-          status TEXT,
-          source TEXT,
+          profile_image TEXT,
+          status TEXT CHECK (status IN ('New', 'Contacted', 'Qualified', 'Lost')),
+          source TEXT CHECK (source IN ('Web', 'Referral', 'Advertisement')),
+          assigned_to_id UUID REFERENCES profiles(id),
           created_at TIMESTAMPTZ,
           updated_at TIMESTAMPTZ
         `
@@ -110,16 +137,18 @@ async function seedDatabase() {
 
       // Activities table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'activities',
-        schema: `
+        tbl_name: 'octocrm.activities',
+       schema_definition: `
           id UUID PRIMARY KEY,
-          type TEXT,
-          subject TEXT,
+          type TEXT CHECK (type IN ('Call', 'Email', 'Meeting', 'Task')),
           description TEXT,
           due_date TIMESTAMPTZ,
-          status TEXT,
-          opportunity_id UUID REFERENCES opportunities(id),
+          completed BOOLEAN DEFAULT false,
+          profile_id UUID REFERENCES profiles(id),
           contact_id UUID REFERENCES contacts(id),
+          company_id UUID REFERENCES companies(id),
+          opportunity_id UUID REFERENCES opportunities(id),
+          lead_id UUID REFERENCES leads(id),
           created_at TIMESTAMPTZ,
           updated_at TIMESTAMPTZ
         `
@@ -127,12 +156,15 @@ async function seedDatabase() {
 
       // Notes table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'notes',
-        schema: `
+        tbl_name: 'octocrm.notes',
+       schema_definition: `
           id UUID PRIMARY KEY,
           content TEXT,
-          opportunity_id UUID REFERENCES opportunities(id),
+          profile_id UUID REFERENCES profiles(id),
           contact_id UUID REFERENCES contacts(id),
+          company_id UUID REFERENCES companies(id),
+          opportunity_id UUID REFERENCES opportunities(id),
+          lead_id UUID REFERENCES leads(id),
           created_at TIMESTAMPTZ,
           updated_at TIMESTAMPTZ
         `
@@ -140,17 +172,19 @@ async function seedDatabase() {
 
       // Tasks table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'tasks',
-        schema: `
+        tbl_name: 'octocrm.tasks',
+       schema_definition: `
           id UUID PRIMARY KEY,
           title TEXT,
           description TEXT,
           due_date TIMESTAMPTZ,
-          status TEXT,
+          completed BOOLEAN DEFAULT false,
           priority TEXT,
-          opportunity_id UUID REFERENCES opportunities(id),
+          profile_id UUID REFERENCES profiles(id),
           contact_id UUID REFERENCES contacts(id),
-          assigned_to UUID REFERENCES users(id),
+          company_id UUID REFERENCES companies(id),
+          opportunity_id UUID REFERENCES opportunities(id),
+          lead_id UUID REFERENCES leads(id),
           created_at TIMESTAMPTZ,
           updated_at TIMESTAMPTZ
         `
@@ -158,13 +192,14 @@ async function seedDatabase() {
 
       // Reports table
       await supabase.rpc('create_table_if_not_exists', {
-        table_name: 'reports',
-        schema: `
+        tbl_name: 'octocrm.reports',
+       schema_definition: `
           id UUID PRIMARY KEY,
           name TEXT,
-          type TEXT,
-          parameters JSONB,
-          created_by UUID REFERENCES users(id),
+          type TEXT CHECK (type IN ('Sales', 'Support', 'Marketing')),
+          generated_by_profile_id UUID REFERENCES profiles(id),
+          generated_on TIMESTAMPTZ,
+          content TEXT,
           created_at TIMESTAMPTZ,
           updated_at TIMESTAMPTZ
         `
@@ -172,36 +207,41 @@ async function seedDatabase() {
     };
 
     await createTables();
+    console.log('Tables created successfully!');
 
-    // Insert sample data
-    const { users, companies, contacts, opportunities, leads, activities, notes, tasks, reports } = sampleData;
+    // Insert sample data with service role permissions
+    const { users, profiles, companies, contacts, opportunities, leads, activities, notes, tasks, reports } = sampleData;
+
+    console.log('Starting data insertion...');
 
     // Insert data in correct order (respecting foreign keys)
-    await supabase.from('users').insert(users);
-    await supabase.from('companies').insert(companies);
-    await supabase.from('contacts').insert(contacts);
-    await supabase.from('opportunities').insert(opportunities);
+    const insertions = [
+    
+      { table: 'octocrm.profiles', data: profiles },
+      { table: 'octocrm.companies', data: companies },
+      { table: 'octocrm.contacts', data: contacts },
+      { table: 'octocrm.opportunities', data: opportunities },
+      { table: 'octocrm.leads', data: leads },
+      { table: 'octocrm.activities', data: activities },
+      { table: 'octocrm.notes', data: notes },
+      { table: 'octocrm.tasks', data: tasks },
+      { table: 'octocrm.reports', data: reports }
+    ];
 
-    // After inserting opportunities
-    const opportunityContacts = opportunities.flatMap(opportunity => 
-      opportunity.contacts?.map(contact => ({
-        opportunity_id: opportunity.id,
-        contact_id: contact.id
-      })) || []
-    );
-
-    await supabase.from('opportunity_contacts').insert(opportunityContacts);
-
-    await supabase.from('leads').insert(leads);
-    await supabase.from('activities').insert(activities);
-    await supabase.from('notes').insert(notes);
-    await supabase.from('tasks').insert(tasks);
-    await supabase.from('reports').insert(reports);
+    for (const { table, data } of insertions) {
+      console.log(`Inserting ${table}...`);
+      const { error } = await supabase.from(table).insert(data);
+      if (error) {
+        throw new Error(`Error inserting ${table}: ${error.message}`);
+      }
+      console.log(`${table} inserted successfully!`);
+    }
 
     console.log('Database seeded successfully!');
   } catch (error) {
     console.error('Error seeding database:', error);
+    throw error;
   }
 }
 
-seedDatabase();
+export default seedDatabase;

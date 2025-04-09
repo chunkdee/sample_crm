@@ -2,9 +2,30 @@ _format_version: "2.1"
 _transform: true
 
 services:
-  - name: auth-v1
-    url: http://auth:9999/verify
+  - name: auth-service
+    url: http://auth:9999
     routes:
-      - name: auth-v1-route
+      - name: auth-route
         paths:
           - /auth/v1
+    plugins:
+      - name: cors
+        config:
+          origins: ['*']
+          headers: ['Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'Authorization']
+          exposed_headers: ['Content-Length']
+          credentials: true
+          max_age: 3600
+
+  - name: rest-service
+    url: http://rest:3000
+    routes:
+      - name: rest-route
+        paths:
+          - /rest/v1
+    plugins:
+      - name: cors
+      - name: key-auth
+      - name: acl
+        config:
+          whitelist: ['anon', 'authenticated']
