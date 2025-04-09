@@ -33,7 +33,7 @@ A modern Customer Relationship Management (CRM) system built with React, Ant Des
 
 - **Frontend Framework**: React
 - **UI Components**: Ant Design
-- **Admin Framework**: React-Admin
+- **Admin Framework**: ra-core
 - **Authentication**: Supabase Auth
 - **Database**: Supabase (PostgreSQL)
 - **API**: Supabase REST API
